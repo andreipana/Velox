@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Velox\Velox.csproj" />
+    <ProjectReference Include="..\Velox.Controls\Velox.Controls.csproj" />
   </ItemGroup>
 
 </Project>

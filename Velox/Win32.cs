@@ -126,5 +126,32 @@ namespace Velox
 
         [DllImport("dwmapi.dll")]
         public static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS pMarInset);
+
+        // ---------------- Mouse ----------------
+
+        public const int WM_MOUSEMOVE   = 0x0200;
+        public const int WM_LBUTTONDOWN = 0x0201;
+        public const int WM_LBUTTONUP   = 0x0202;
+        public const int WM_MOUSELEAVE  = 0x02A1;
+
+        public const int TME_LEAVE = 0x00000002;
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct TRACKMOUSEEVENT
+        {
+            public int    cbSize;
+            public int    dwFlags;
+            public IntPtr hwndTrack;
+            public int    dwHoverTime;
+        }
+
+        [DllImport("user32.dll")] public static extern bool TrackMouseEvent(ref TRACKMOUSEEVENT tme);
+        [DllImport("user32.dll")] public static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
+
+        public static (int x, int y) GetMousePos(IntPtr lParam)
+        {
+            int raw = lParam.ToInt32();
+            return ((short)(raw & 0xFFFF), (short)((raw >> 16) & 0xFFFF));
+        }
     }
 }

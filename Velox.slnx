@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Velox.Demo/Velox.Demo.csproj" />
   <Project Path="Velox/Velox.csproj" />
+  <Project Path="Velox.Controls/Velox.Controls.csproj" />
 </Solution>
