@@ -12,4 +12,10 @@
     <ProjectReference Include="..\Velox.Controls\Velox.Controls.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\i2.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

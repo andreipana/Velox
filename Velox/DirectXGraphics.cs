@@ -55,9 +55,12 @@ namespace Velox
         }
 
         public void DrawText(string text, string fontFace, float fontSize,
-                             float x, float y, float maxWidth, float maxHeight, uint argbColor)
+                             float x, float y, float maxWidth, float maxHeight, uint argbColor,
+                             bool noWrap = false)
         {
             using var fmt    = _sys.CreateTextFormat(fontFace, fontSize);
+            if (noWrap) 
+                fmt.WordWrapping = SharpDX.DirectWrite.WordWrapping.NoWrap;
             using var layout = _sys.CreateWpfCompatibleLayout(fmt, text, maxWidth, maxHeight);
             using var brush  = new SolidColorBrush(_rt, ToColor(argbColor));
             _rt.DrawTextLayout(new RawVector2(x, y), layout, brush, DrawTextOptions.None);

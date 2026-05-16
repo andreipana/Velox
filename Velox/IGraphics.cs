@@ -12,7 +12,8 @@ namespace Velox
         void DrawLine(float x1, float y1, float x2, float y2, uint argbColor, float strokeWidth = 1f);
 
         void DrawText(string text, string fontFace, float fontSize,
-                      float x, float y, float maxWidth, float maxHeight, uint argbColor);
+                      float x, float y, float maxWidth, float maxHeight, uint argbColor,
+                      bool noWrap = false);
 
         (float width, float height) MeasureText(string text, string fontFace, float fontSize,
                                                 float maxWidth, float maxHeight);

@@ -17,6 +17,18 @@ namespace Velox
         private readonly List<IControl> _controls = new();
         private bool _mouseTracking = false;
 
+        public event EventHandler? Resized;
+
+        public (float Width, float Height) ClientSizeDip
+        {
+            get
+            {
+                Win32.GetClientRect(hwnd, out Win32.RECT r);
+                return (r.right  * 96f / renderingSystem.DpiX,
+                        r.bottom * 96f / renderingSystem.DpiY);
+            }
+        }
+
         public (int Width, int Height) Size
         {
             get
@@ -80,6 +92,7 @@ namespace Velox
                     Resize();
                     RenderInternal();
                     Win32.ValidateRect(hWnd, IntPtr.Zero); // suppress the WM_PAINT Windows queues after WM_SIZE
+                    Resized?.Invoke(this, EventArgs.Empty);
                     break;
 
                 case Win32.WM_DESTROY:
