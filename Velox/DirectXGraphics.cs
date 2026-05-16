@@ -61,6 +61,10 @@ namespace Velox
             using var fmt    = _sys.CreateTextFormat(fontFace, fontSize);
             if (noWrap) 
                 fmt.WordWrapping = SharpDX.DirectWrite.WordWrapping.NoWrap;
+            if (maxWidth < 0)
+                return;
+            if (maxHeight < 0)
+                return;
             using var layout = _sys.CreateWpfCompatibleLayout(fmt, text, maxWidth, maxHeight);
             using var brush  = new SolidColorBrush(_rt, ToColor(argbColor));
             _rt.DrawTextLayout(new RawVector2(x, y), layout, brush, DrawTextOptions.None);

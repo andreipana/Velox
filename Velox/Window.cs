@@ -53,7 +53,7 @@ namespace Velox
             wc.cbSize = Marshal.SizeOf(wc);
             wc.lpfnWndProc = _wndProc;
             wc.hInstance = Win32.GetModuleHandle(null);
-            wc.lpszClassName = "D2DWindow";
+            wc.lpszClassName = "Velox";
             wc.hCursor = Win32.LoadCursor(IntPtr.Zero, Win32.IDC_ARROW);
             wc.hbrBackground = IntPtr.Zero; // no background brush — DWM backdrop fills it
 
