@@ -17,6 +17,16 @@ namespace Velox
         private readonly List<IControl> _controls = new();
         private bool _mouseTracking = false;
 
+        public (int Width, int Height) Size
+        {
+            get
+            {
+                Win32.GetWindowRect(hwnd, out Win32.RECT r);
+                return (r.right - r.left, r.bottom - r.top);
+            }
+            set => Win32.SetWindowPos(hwnd, IntPtr.Zero, 0, 0, value.Width, value.Height, Win32.SWP_NOMOVE | Win32.SWP_NOZORDER);
+        }
+
         public void AddControl(IControl control)
         {
             _controls.Add(control);

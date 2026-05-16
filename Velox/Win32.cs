@@ -101,6 +101,7 @@ namespace Velox
         [DllImport("user32.dll")]   public static extern IntPtr DefWindowProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
         [DllImport("user32.dll")]   public static extern void PostQuitMessage(int code);
         [DllImport("user32.dll")]   public static extern bool GetClientRect(IntPtr hWnd, out RECT rect);
+        [DllImport("user32.dll")]   public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
         [DllImport("user32.dll", SetLastError = true)]
                                     public static extern IntPtr LoadCursor(IntPtr hInstance, IntPtr lpCursorName);
         [DllImport("kernel32.dll")] public static extern IntPtr GetModuleHandle(string? name);
@@ -148,6 +149,10 @@ namespace Velox
 
         [DllImport("user32.dll")] public static extern bool TrackMouseEvent(ref TRACKMOUSEEVENT tme);
         [DllImport("user32.dll")] public static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
+        [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
+
+        public const uint SWP_NOMOVE   = 0x0002;
+        public const uint SWP_NOZORDER = 0x0004;
 
         public static int GetWheelDelta(IntPtr wParam)
             => (short)((wParam.ToInt64() >> 16) & 0xFFFF);

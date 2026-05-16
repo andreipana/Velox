@@ -10,6 +10,7 @@ namespace Velox.Demo
         {
             var application = new Application();
             var window = application.CreateWindow();
+            window.Size = (900, 650);
 
             // --- Button demo ---
 
