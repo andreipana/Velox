@@ -90,9 +90,9 @@ namespace Velox
 
                 case Win32.WM_SIZE:
                     Resize();
+                    Resized?.Invoke(this, EventArgs.Empty);
                     RenderInternal();
                     Win32.ValidateRect(hWnd, IntPtr.Zero); // suppress the WM_PAINT Windows queues after WM_SIZE
-                    Resized?.Invoke(this, EventArgs.Empty);
                     break;
 
                 case Win32.WM_DESTROY:
