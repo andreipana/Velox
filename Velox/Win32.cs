@@ -133,6 +133,7 @@ namespace Velox
         public const int WM_LBUTTONDOWN = 0x0201;
         public const int WM_LBUTTONUP   = 0x0202;
         public const int WM_MOUSELEAVE  = 0x02A1;
+        public const int WM_MOUSEWHEEL  = 0x020A;
 
         public const int TME_LEAVE = 0x00000002;
 
@@ -147,6 +148,9 @@ namespace Velox
 
         [DllImport("user32.dll")] public static extern bool TrackMouseEvent(ref TRACKMOUSEEVENT tme);
         [DllImport("user32.dll")] public static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
+
+        public static int GetWheelDelta(IntPtr wParam)
+            => (short)((wParam.ToInt64() >> 16) & 0xFFFF);
 
         public static (int x, int y) GetMousePos(IntPtr lParam)
         {

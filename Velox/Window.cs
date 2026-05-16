@@ -112,6 +112,14 @@ namespace Velox
                     foreach (var c in _controls) c.OnMouseLeave();
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
+
+                case Win32.WM_MOUSEWHEEL:
+                {
+                    float delta = Win32.GetWheelDelta(wParam) / 120f;
+                    foreach (var c in _controls) c.OnMouseWheel(delta);
+                    Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
+                    break;
+                }
             }
             return Win32.DefWindowProc(hWnd, msg, wParam, lParam);
         }

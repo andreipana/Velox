@@ -11,6 +11,8 @@ namespace Velox.Demo
             var application = new Application();
             var window = application.CreateWindow();
 
+            // --- Button demo ---
+
             var title = new TextBlock
             {
                 X = 40, Y = 40,
@@ -41,10 +43,31 @@ namespace Velox.Demo
             helloButton.Click += (_, _) => status.Text = "Hello, World!";
             resetButton.Click += (_, _) => status.Text = "Press a button...";
 
+            // --- ScrollBar demo ---
+
+            var scrollLabel = new TextBlock
+            {
+                X = 280, Y = 40,
+                Text = "Scroll: 0",
+                FontSize = 14f,
+                TextColor = 0xFFAAAAAAU,
+            };
+
+            var scrollBar = new ScrollBar
+            {
+                X = 340, Y = 40,
+                Width = 12, Height = 200,
+                Min = 0, Max = 100, ViewportSize = 20,
+            };
+
+            scrollBar.ValueChanged += (_, v) => scrollLabel.Text = $"Scroll: {(int)v}";
+
             window.AddControl(title);
             window.AddControl(helloButton);
             window.AddControl(resetButton);
             window.AddControl(status);
+            window.AddControl(scrollLabel);
+            window.AddControl(scrollBar);
 
             application.Run();
         }
