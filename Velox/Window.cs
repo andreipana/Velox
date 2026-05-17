@@ -1,4 +1,3 @@
-using SharpDX.Direct2D1;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -152,24 +151,25 @@ namespace Velox
             if (_mouseTracking) return;
             var tme = new Win32.TRACKMOUSEEVENT
             {
-                cbSize    = Marshal.SizeOf<Win32.TRACKMOUSEEVENT>(),
-                dwFlags   = Win32.TME_LEAVE,
-                hwndTrack = hWnd,
+                cbSize      = Marshal.SizeOf<Win32.TRACKMOUSEEVENT>(),
+                dwFlags     = Win32.TME_LEAVE,
+                hwndTrack   = hWnd,
                 dwHoverTime = 0,
             };
             Win32.TrackMouseEvent(ref tme);
             _mouseTracking = true;
         }
 
-        private void RenderInternal() => _renderer2.Render(Render);
-
-        public virtual void Render(RenderTarget renderTarget)
+        private void RenderInternal()
         {
             Win32.GetClientRect(hwnd, out Win32.RECT r);
             float dipWidth  = r.right  * 96f / renderingSystem.DpiX;
             float dipHeight = r.bottom * 96f / renderingSystem.DpiY;
+            _renderer2.Render(Render, dipWidth, dipHeight);
+        }
 
-            var graphics = new DirectXGraphics(renderTarget, renderingSystem, dipWidth, dipHeight);
+        public virtual void Render(IGraphics graphics)
+        {
             foreach (var control in _controls)
                 if (control.IsVisible) control.Render(graphics);
         }

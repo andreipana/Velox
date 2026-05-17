@@ -1,64 +1,52 @@
-﻿using SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Velox
 {
-    public class DirectXRenderingSystem
+    public class DirectXRenderingSystem : IDisposable
     {
-        public SharpDX.DirectWrite.Factory DirectWriteFactory { get; }
-
-        public SharpDX.Direct2D1.Factory1 Direct2DFactory { get; }
+        internal IntPtr D2dFactory;
+        internal IntPtr DWriteFactory;
 
         public float DpiX { get; }
-
         public float DpiY { get; }
 
         public DirectXRenderingSystem()
         {
-            Direct2DFactory = new SharpDX.Direct2D1.Factory1(SharpDX.Direct2D1.FactoryType.SingleThreaded);
+            var d2dIid = new Guid("06152247-6f50-465a-9245-118bfd3b6007");
+            D2D1Native.D2D1CreateFactory(D2D1_FACTORY_TYPE.SINGLE_THREADED, ref d2dIid, IntPtr.Zero, out D2dFactory);
 
-            DirectWriteFactory = new SharpDX.DirectWrite.Factory(SharpDX.DirectWrite.FactoryType.Shared);
+            var dwIid = new Guid("b859ee5a-d838-4b5b-a2e8-1adc7d93db48");
+            D2D1Native.DWriteCreateFactory(DWRITE_FACTORY_TYPE.SHARED, ref dwIid, out DWriteFactory);
 
-            var ddpi = Direct2DFactory.DesktopDpi;
-            DpiX = ddpi.Width;
-            DpiY = ddpi.Height;
+            D2D1Vtbl.Factory_GetDesktopDpi(D2dFactory, out float dpiX, out float dpiY);
+            DpiX = dpiX;
+            DpiY = dpiY;
         }
 
-        internal TextFormat CreateTextFormat(string fontFace, float size, FontWeight fontWeight = FontWeight.Normal, FontStyle fontStyle = FontStyle.Normal)
+        internal IntPtr CreateTextFormat(string fontFace, float size,
+            DWRITE_FONT_WEIGHT fontWeight = DWRITE_FONT_WEIGHT.NORMAL,
+            DWRITE_FONT_STYLE  fontStyle  = DWRITE_FONT_STYLE.NORMAL)
         {
-            return new TextFormat(DirectWriteFactory, fontFace, fontWeight, fontStyle, size)
-            {
-                TextAlignment = TextAlignment.Leading,
-                ParagraphAlignment = ParagraphAlignment.Near,
-                //WordWrapping = WordWrapping.NoWrap
-            };
+            IntPtr fmt = D2D1Vtbl.DWrite_CreateTextFormat(
+                DWriteFactory, fontFace, fontWeight, fontStyle, DWRITE_FONT_STRETCH.NORMAL, size);
+            D2D1Vtbl.TextFmt_SetTextAlignment(fmt, DWRITE_TEXT_ALIGNMENT.LEADING);
+            D2D1Vtbl.TextFmt_SetParagraphAlignment(fmt, DWRITE_PARAGRAPH_ALIGNMENT.NEAR);
+            return fmt;
         }
 
-        /// <summary>
-        /// Creates a GDI-compatible text layout — the key to matching WPF's
-        /// crisp rendering. This forces glyph advances to snap to pixel
-        /// boundaries during measurement, exactly as WPF does internally.
-        /// </summary>
-        public TextLayout CreateWpfCompatibleLayout(TextFormat textFormat, string text, float maxWidth, float maxHeight)
+        // Creates a GDI-compatible text layout — the key to matching WPF's
+        // crisp rendering. This forces glyph advances to snap to pixel
+        // boundaries during measurement, exactly as WPF does internally.
+        internal IntPtr CreateWpfCompatibleLayout(IntPtr textFormat, string text, float maxWidth, float maxHeight)
         {
             float pixelsPerDip = DpiY / 96.0f;
+            return D2D1Vtbl.DWrite_CreateGdiCompatibleTextLayout(
+                DWriteFactory, text, textFormat, maxWidth, maxHeight, pixelsPerDip);
+        }
 
-            // CreateGdiCompatibleTextLayout snaps glyph advances to whole pixels,
-            // which is the single biggest reason WPF text looks sharper than
-            // naive Direct2D text rendering.
-            return new TextLayout(
-                DirectWriteFactory,
-                text,
-                textFormat,
-                maxWidth,
-                maxHeight,
-                pixelsPerDip,
-                null,       // no additional transform
-                true        // useGdiNatural — matches WPF's measuring mode
-            );
+        public void Dispose()
+        {
+            D2D1Vtbl.Release(D2dFactory);
+            D2D1Vtbl.Release(DWriteFactory);
+            D2dFactory = DWriteFactory = IntPtr.Zero;
         }
     }
 }
