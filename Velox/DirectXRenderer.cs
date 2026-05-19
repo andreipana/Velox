@@ -1,83 +1,80 @@
-﻿using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX.Mathematics.Interop;
-
 namespace Velox
 {
-
     public class DirectXRenderer : IDisposable
     {
-        private WindowRenderTarget _renderTarget;
+        private IntPtr _renderTarget;
+        private readonly DirectXRenderingSystem _renderingSystem;
 
         public DirectXRenderer(DirectXRenderingSystem renderingSystem, nint hwnd)
         {
-            var renderTargetProps = new RenderTargetProperties
+            _renderingSystem = renderingSystem;
+
+            var rtProps = new D2D1_RENDER_TARGET_PROPERTIES
             {
-                Type = RenderTargetType.Default,
-                PixelFormat = new SharpDX.Direct2D1.PixelFormat(
-                    SharpDX.DXGI.Format.Unknown,
-                    SharpDX.Direct2D1.AlphaMode.Premultiplied),
-                DpiX = renderingSystem.DpiX,
-                DpiY = renderingSystem.DpiY,
-                Usage = RenderTargetUsage.None,
-                MinLevel = FeatureLevel.Level_DEFAULT
+                type        = D2D1_RENDER_TARGET_TYPE.DEFAULT,
+                pixelFormat = new D2D1_PIXEL_FORMAT
+                {
+                    format    = DXGI_FORMAT.UNKNOWN,
+                    alphaMode = D2D1_ALPHA_MODE.PREMULTIPLIED,
+                },
+                dpiX     = renderingSystem.DpiX,
+                dpiY     = renderingSystem.DpiY,
+                usage    = D2D1_RENDER_TARGET_USAGE.NONE,
+                minLevel = D2D1_FEATURE_LEVEL.DEFAULT,
             };
 
             Win32.GetClientRect(hwnd, out var rect);
-
-            var hwndRenderTargetProps = new HwndRenderTargetProperties
+            var hwndProps = new D2D1_HWND_RENDER_TARGET_PROPERTIES
             {
-                Hwnd = hwnd,
-                PixelSize = new Size2(rect.right, rect.bottom),
-                PresentOptions = PresentOptions.None
+                hwnd           = hwnd,
+                pixelSize      = new D2D1_SIZE_U { width = (uint)rect.right, height = (uint)rect.bottom },
+                presentOptions = D2D1_PRESENT_OPTIONS.NONE,
             };
 
-            _renderTarget = new WindowRenderTarget(renderingSystem.Direct2DFactory, renderTargetProps, hwndRenderTargetProps)
-            {
-                // Grayscale antialiasing required for transparent/backdrop surfaces —
-                // ClearType assumes a known opaque background for subpixel rendering.
-                TextAntialiasMode = SharpDX.Direct2D1.TextAntialiasMode.Cleartype,
-            };
+            _renderTarget = D2D1Vtbl.Factory_CreateHwndRenderTarget(
+                renderingSystem.D2dFactory, ref rtProps, ref hwndProps);
+
+            // Grayscale antialiasing required for transparent/backdrop surfaces —
+            // ClearType assumes a known opaque background for subpixel rendering.
+            D2D1Vtbl.RT_SetTextAntialiasMode(_renderTarget, D2D1_TEXT_ANTIALIAS_MODE.CLEARTYPE);
 
             // Set rendering mode explicitly to match WPF's ClearType quality.
-            // CLEARTYPE_NATURAL_SYMMETRIC is what modern WPF targets.
-            using var renderingParams = new RenderingParams(
-                renderingSystem.DirectWriteFactory,
-                gamma: 1.8f,            // WPF default gamma
-                enhancedContrast: 0.5f, // WPF default contrast
-                clearTypeLevel: 1.0f,   // Full ClearType
-                pixelGeometry: PixelGeometry.Rgb,
-                renderingMode: RenderingMode.CleartypeNaturalSymmetric
-            );
-
-            _renderTarget.TextRenderingParams = renderingParams;
+            // NATURAL_SYMMETRIC is what modern WPF targets.
+            IntPtr renderingParams = D2D1Vtbl.DWrite_CreateCustomRenderingParams(
+                renderingSystem.DWriteFactory,
+                gamma: 1.8f, enhancedContrast: 0.5f, clearTypeLevel: 1.0f,
+                DWRITE_PIXEL_GEOMETRY.RGB, DWRITE_RENDERING_MODE.NATURAL_SYMMETRIC);
+            D2D1Vtbl.RT_SetTextRenderingParams(_renderTarget, renderingParams);
+            D2D1Vtbl.Release(renderingParams);
         }
 
-        public void Render(Action<RenderTarget> render)
+        public void Render(Action<IGraphics> render, float dipWidth, float dipHeight)
         {
-            _renderTarget.BeginDraw();
-
-            _renderTarget.Clear(new RawColor4(0, 0, 0, 0)); // transparent — lets DWM backdrop show through
-
+            var clearColor = new D2D1_COLOR_F(0, 0, 0, 0); // transparent — lets DWM backdrop show through
+            D2D1Vtbl.RT_BeginDraw(_renderTarget);
+            D2D1Vtbl.RT_Clear(_renderTarget, ref clearColor);
             try
             {
-                render?.Invoke(_renderTarget);
+                var graphics = new DirectXGraphics(_renderTarget, _renderingSystem, dipWidth, dipHeight);
+                render?.Invoke(graphics);
             }
             finally
             {
-                _renderTarget.EndDraw();
+                D2D1Vtbl.RT_EndDraw(_renderTarget);
             }
         }
 
         public void Resize(int width, int height)
         {
-            _renderTarget?.Resize(new Size2(width, height));
+            if (_renderTarget == IntPtr.Zero) return;
+            var size = new D2D1_SIZE_U { width = (uint)width, height = (uint)height };
+            D2D1Vtbl.RT_Resize(_renderTarget, ref size);
         }
 
         public void Dispose()
         {
-            _renderTarget?.Dispose();
+            D2D1Vtbl.Release(_renderTarget);
+            _renderTarget = IntPtr.Zero;
         }
     }
 }
