@@ -1,6 +1,6 @@
-using SharpDX.Direct2D1;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Velox.DirectX;
 
 namespace Velox
 {
@@ -161,15 +161,16 @@ namespace Velox
             _mouseTracking = true;
         }
 
-        private void RenderInternal() => _renderer2.Render(Render);
-
-        public virtual void Render(RenderTarget renderTarget)
+        private void RenderInternal()
         {
             Win32.GetClientRect(hwnd, out Win32.RECT r);
             float dipWidth  = r.right  * 96f / renderingSystem.DpiX;
             float dipHeight = r.bottom * 96f / renderingSystem.DpiY;
+            _renderer2.Render(Render, dipWidth, dipHeight);
+        }
 
-            var graphics = new DirectXGraphics(renderTarget, renderingSystem, dipWidth, dipHeight);
+        public virtual void Render(IGraphics graphics)
+        {
             foreach (var control in _controls)
                 if (control.IsVisible) control.Render(graphics);
         }
