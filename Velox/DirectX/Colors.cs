@@ -1,4 +1,4 @@
-namespace Velox
+namespace Velox.DirectX
 {
     internal static class Colors
     {

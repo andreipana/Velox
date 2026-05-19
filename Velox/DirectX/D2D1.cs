@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Velox
+namespace Velox.DirectX
 {
     // ─── Enumerations ─────────────────────────────────────────────────────────
 

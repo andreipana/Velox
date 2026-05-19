@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Velox.DirectX;
 
 namespace Velox
 {

@@ -1,4 +1,6 @@
-namespace Velox
+using Velox;
+
+namespace Velox.DirectX
 {
     internal sealed class DirectXGraphics : IGraphics
     {

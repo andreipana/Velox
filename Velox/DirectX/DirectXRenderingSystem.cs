@@ -1,4 +1,4 @@
-namespace Velox
+namespace Velox.DirectX
 {
     public class DirectXRenderingSystem : IDisposable
     {

@@ -1,13 +1,15 @@
-namespace Velox
+using Velox;
+
+namespace Velox.DirectX
 {
     public class DirectXRenderer : IDisposable
     {
-        private IntPtr _renderTarget;
-        private readonly DirectXRenderingSystem _renderingSystem;
+        private IntPtr _rt;
+        private readonly DirectXRenderingSystem _sys;
 
         public DirectXRenderer(DirectXRenderingSystem renderingSystem, nint hwnd)
         {
-            _renderingSystem = renderingSystem;
+            _sys = renderingSystem;
 
             var rtProps = new D2D1_RENDER_TARGET_PROPERTIES
             {
@@ -31,12 +33,12 @@ namespace Velox
                 presentOptions = D2D1_PRESENT_OPTIONS.NONE,
             };
 
-            _renderTarget = D2D1Vtbl.Factory_CreateHwndRenderTarget(
+            _rt = D2D1Vtbl.Factory_CreateHwndRenderTarget(
                 renderingSystem.D2dFactory, ref rtProps, ref hwndProps);
 
             // Grayscale antialiasing required for transparent/backdrop surfaces —
             // ClearType assumes a known opaque background for subpixel rendering.
-            D2D1Vtbl.RT_SetTextAntialiasMode(_renderTarget, D2D1_TEXT_ANTIALIAS_MODE.CLEARTYPE);
+            D2D1Vtbl.RT_SetTextAntialiasMode(_rt, D2D1_TEXT_ANTIALIAS_MODE.CLEARTYPE);
 
             // Set rendering mode explicitly to match WPF's ClearType quality.
             // NATURAL_SYMMETRIC is what modern WPF targets.
@@ -44,37 +46,37 @@ namespace Velox
                 renderingSystem.DWriteFactory,
                 gamma: 1.8f, enhancedContrast: 0.5f, clearTypeLevel: 1.0f,
                 DWRITE_PIXEL_GEOMETRY.RGB, DWRITE_RENDERING_MODE.NATURAL_SYMMETRIC);
-            D2D1Vtbl.RT_SetTextRenderingParams(_renderTarget, renderingParams);
+            D2D1Vtbl.RT_SetTextRenderingParams(_rt, renderingParams);
             D2D1Vtbl.Release(renderingParams);
         }
 
         public void Render(Action<IGraphics> render, float dipWidth, float dipHeight)
         {
             var clearColor = new D2D1_COLOR_F(0, 0, 0, 0); // transparent — lets DWM backdrop show through
-            D2D1Vtbl.RT_BeginDraw(_renderTarget);
-            D2D1Vtbl.RT_Clear(_renderTarget, ref clearColor);
+            D2D1Vtbl.RT_BeginDraw(_rt);
+            D2D1Vtbl.RT_Clear(_rt, ref clearColor);
             try
             {
-                var graphics = new DirectXGraphics(_renderTarget, _renderingSystem, dipWidth, dipHeight);
+                var graphics = new DirectXGraphics(_rt, _sys, dipWidth, dipHeight);
                 render?.Invoke(graphics);
             }
             finally
             {
-                D2D1Vtbl.RT_EndDraw(_renderTarget);
+                D2D1Vtbl.RT_EndDraw(_rt);
             }
         }
 
         public void Resize(int width, int height)
         {
-            if (_renderTarget == IntPtr.Zero) return;
+            if (_rt == IntPtr.Zero) return;
             var size = new D2D1_SIZE_U { width = (uint)width, height = (uint)height };
-            D2D1Vtbl.RT_Resize(_renderTarget, ref size);
+            D2D1Vtbl.RT_Resize(_rt, ref size);
         }
 
         public void Dispose()
         {
-            D2D1Vtbl.Release(_renderTarget);
-            _renderTarget = IntPtr.Zero;
+            D2D1Vtbl.Release(_rt);
+            _rt = IntPtr.Zero;
         }
     }
 }
