@@ -6,7 +6,8 @@ namespace Velox.DirectX
 
     internal enum D2D1_FACTORY_TYPE { SINGLE_THREADED = 0, MULTI_THREADED = 1 }
     internal enum D2D1_RENDER_TARGET_TYPE { DEFAULT = 0, SOFTWARE = 1, HARDWARE = 2 }
-    internal enum DXGI_FORMAT { UNKNOWN = 0 }
+    internal enum DXGI_FORMAT { UNKNOWN = 0, B8G8R8A8_UNORM = 87 }
+    internal enum D2D1_BITMAP_INTERPOLATION_MODE { NEAREST_NEIGHBOR = 0, LINEAR = 1 }
     internal enum D2D1_ALPHA_MODE { UNKNOWN = 0, PREMULTIPLIED = 1, STRAIGHT = 2, IGNORE = 3 }
     internal enum D2D1_RENDER_TARGET_USAGE { NONE = 0 }
     internal enum D2D1_FEATURE_LEVEL { DEFAULT = 0 }
@@ -70,6 +71,14 @@ namespace Velox.DirectX
         public IntPtr hwnd;
         public D2D1_SIZE_U pixelSize;
         public D2D1_PRESENT_OPTIONS presentOptions;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct D2D1_BITMAP_PROPERTIES
+    {
+        public D2D1_PIXEL_FORMAT pixelFormat;
+        public float dpiX;
+        public float dpiY;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -147,6 +156,25 @@ namespace Velox.DirectX
                 ((delegate* unmanaged[Stdcall]<IntPtr, D2D1_RENDER_TARGET_PROPERTIES*, D2D1_HWND_RENDER_TARGET_PROPERTIES*, IntPtr*, int>)
                     V(f)[14])(f, pRt, pH, &rt);
             return rt;
+        }
+
+        // ── ID2D1RenderTarget ────────────────────────────────────────────────
+        // Slot 4: CreateBitmap
+        public static IntPtr RT_CreateBitmap(IntPtr rt, D2D1_SIZE_U size, IntPtr srcData, uint pitch, ref D2D1_BITMAP_PROPERTIES props)
+        {
+            IntPtr bitmap;
+            fixed (D2D1_BITMAP_PROPERTIES* p = &props)
+                ((delegate* unmanaged[Stdcall]<IntPtr, D2D1_SIZE_U, void*, uint, D2D1_BITMAP_PROPERTIES*, IntPtr*, int>)
+                    V(rt)[4])(rt, size, (void*)srcData, pitch, p, &bitmap);
+            return bitmap;
+        }
+
+        // Slot 26: DrawBitmap
+        public static void RT_DrawBitmap(IntPtr rt, IntPtr bitmap, ref D2D1_RECT_F dstRect, float opacity, D2D1_BITMAP_INTERPOLATION_MODE mode)
+        {
+            fixed (D2D1_RECT_F* p = &dstRect)
+                ((delegate* unmanaged[Stdcall]<IntPtr, IntPtr, D2D1_RECT_F*, float, D2D1_BITMAP_INTERPOLATION_MODE, D2D1_RECT_F*, void>)
+                    V(rt)[26])(rt, bitmap, p, opacity, mode, null);
         }
 
         // ── ID2D1HwndRenderTarget ────────────────────────────────────────────
