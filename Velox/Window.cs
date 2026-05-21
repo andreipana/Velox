@@ -29,6 +29,11 @@ namespace Velox
             }
         }
 
+        public float DpiX => renderingSystem.DpiX;
+        public float DpiY => renderingSystem.DpiY;
+
+        public void Invalidate() => Win32.InvalidateRect(hwnd, IntPtr.Zero, false);
+
         public (int Width, int Height) Size
         {
             get
