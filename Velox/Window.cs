@@ -130,6 +130,26 @@ namespace Velox
                     break;
                 }
 
+                case Win32.WM_RBUTTONDOWN:
+                {
+                    var (mx, my) = Win32.GetMousePos(lParam);
+                    float dx = mx * 96f / renderingSystem.DpiX;
+                    float dy = my * 96f / renderingSystem.DpiY;
+                    foreach (var c in _controls) c.OnRightMouseDown(dx, dy);
+                    Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
+                    break;
+                }
+
+                case Win32.WM_RBUTTONUP:
+                {
+                    var (mx, my) = Win32.GetMousePos(lParam);
+                    float dx = mx * 96f / renderingSystem.DpiX;
+                    float dy = my * 96f / renderingSystem.DpiY;
+                    foreach (var c in _controls) c.OnRightMouseUp(dx, dy);
+                    Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
+                    break;
+                }
+
                 case Win32.WM_MOUSELEAVE:
                     _mouseTracking = false;
                     foreach (var c in _controls) c.OnMouseLeave();

@@ -9,6 +9,8 @@ namespace Velox
         void OnMouseMove(float px, float py);
         void OnMouseDown(float px, float py);
         void OnMouseUp(float px, float py);
+        void OnRightMouseDown(float px, float py);
+        void OnRightMouseUp(float px, float py);
         void OnMouseLeave();
         void OnMouseWheel(float delta);
     }

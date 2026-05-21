@@ -16,10 +16,12 @@ namespace Velox.Controls
                && px >= X && px < X + Width
                && py >= Y && py < Y + Height;
 
-        public virtual void OnMouseMove(float px, float py) { }
-        public virtual void OnMouseDown(float px, float py) { }
-        public virtual void OnMouseUp(float px, float py)   { }
-        public virtual void OnMouseLeave()                  { }
-        public virtual void OnMouseWheel(float delta)       { }
+        public virtual void OnMouseMove(float px, float py)       { }
+        public virtual void OnMouseDown(float px, float py)       { }
+        public virtual void OnMouseUp(float px, float py)         { }
+        public virtual void OnRightMouseDown(float px, float py)  { }
+        public virtual void OnRightMouseUp(float px, float py)    { }
+        public virtual void OnMouseLeave()                        { }
+        public virtual void OnMouseWheel(float delta)             { }
     }
 }
