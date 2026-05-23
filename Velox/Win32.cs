@@ -149,8 +149,10 @@ namespace Velox
             public int    dwHoverTime;
         }
 
-        [DllImport("user32.dll")] public static extern bool TrackMouseEvent(ref TRACKMOUSEEVENT tme);
-        [DllImport("user32.dll")] public static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
+        [DllImport("user32.dll")] public static extern bool   TrackMouseEvent(ref TRACKMOUSEEVENT tme);
+        [DllImport("user32.dll")] public static extern bool   InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
+        [DllImport("user32.dll")] public static extern IntPtr SetCapture(IntPtr hWnd);
+        [DllImport("user32.dll")] public static extern bool   ReleaseCapture();
         [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
 
         public const uint SWP_NOMOVE   = 0x0002;

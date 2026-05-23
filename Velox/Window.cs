@@ -33,6 +33,8 @@ namespace Velox
         public float DpiY => renderingSystem.DpiY;
 
         public void Invalidate() => Win32.InvalidateRect(hwnd, IntPtr.Zero, false);
+        public void CaptureMouse() => Win32.SetCapture(hwnd);
+        public void ReleaseMouse() => Win32.ReleaseCapture();
 
         public (int Width, int Height) Size
         {
