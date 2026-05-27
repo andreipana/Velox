@@ -6,6 +6,7 @@ namespace Velox.DirectX
     {
         private readonly IntPtr _rt;
         private readonly DirectXRenderingSystem _sys;
+        private readonly Stack<D2D1_MATRIX_3X2_F> _transformStack = new();
 
         public float Width  { get; }
         public float Height { get; }
@@ -129,6 +130,22 @@ namespace Velox.DirectX
         }
 
         public void PopClip() => D2D1Vtbl.RT_PopAxisAlignedClip(_rt);
+
+        public void PushTranslation(float dx, float dy)
+        {
+            var current = D2D1Vtbl.RT_GetTransform(_rt);
+            _transformStack.Push(current);
+            var translated = current;
+            translated._31 += dx;
+            translated._32 += dy;
+            D2D1Vtbl.RT_SetTransform(_rt, ref translated);
+        }
+
+        public void PopTranslation()
+        {
+            var saved = _transformStack.Pop();
+            D2D1Vtbl.RT_SetTransform(_rt, ref saved);
+        }
 
         private static D2D1_RECT_F ToRect(float x, float y, float w, float h)
             => new D2D1_RECT_F { left = x, top = y, right = x + w, bottom = y + h };

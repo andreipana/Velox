@@ -11,10 +11,8 @@ namespace Velox.Controls
         public float ActualWidth  { get; private set; }
         public float ActualHeight { get; private set; }
 
-        public override void Render(Velox.IGraphics graphics)
+        protected override void OnRender(Velox.IGraphics graphics)
         {
-            if (!IsVisible) return;
-
             float maxW = Width  > 0 ? Width  : float.PositiveInfinity;
             float maxH = Height > 0 ? Height : float.PositiveInfinity;
 
@@ -23,9 +21,9 @@ namespace Velox.Controls
             ActualHeight = th;
 
             if (Background.HasValue)
-                graphics.FillRect(X, Y, tw, th, Background.Value);
+                graphics.FillRect(0, 0, tw, th, Background.Value);
 
-            graphics.DrawText(Text, FontFace, FontSize, X, Y, maxW, maxH, TextColor);
+            graphics.DrawText(Text, FontFace, FontSize, 0, 0, maxW, maxH, TextColor);
         }
     }
 }

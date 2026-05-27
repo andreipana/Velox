@@ -9,7 +9,15 @@ namespace Velox.Controls
         public bool IsEnabled { get; set; } = true;
         public bool IsVisible { get; set; } = true;
 
-        public abstract void Render(Velox.IGraphics graphics);
+        public void Render(Velox.IGraphics graphics)
+        {
+            if (!IsVisible) return;
+            graphics.PushTranslation(X, Y);
+            try { OnRender(graphics); }
+            finally { graphics.PopTranslation(); }
+        }
+
+        protected abstract void OnRender(Velox.IGraphics graphics);
 
         public virtual bool HitTest(float px, float py)
             => IsVisible && IsEnabled

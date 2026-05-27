@@ -21,19 +21,17 @@ namespace Velox.Controls
         private float _dragStartY     = 0f;
         private float _dragStartValue = 0f;
 
-        public override void Render(Velox.IGraphics graphics)
+        protected override void OnRender(Velox.IGraphics graphics)
         {
-            if (!IsVisible) return;
-
             if (_isHovered)
-                graphics.FillRect(X, Y, Width, Height, 0xFF1E1E1EU);
+                graphics.FillRect(0, 0, Width, Height, 0xFF1E1E1EU);
 
             float trackH = Height - 2 * ThumbPadding;
             float thumbH = ComputeThumbH(trackH);
             float thumbTopRel = ComputeThumbY(trackH, thumbH);
 
-            float thumbX = X + ThumbPadding;
-            float thumbY = Y + ThumbPadding + thumbTopRel;
+            float thumbX = ThumbPadding;
+            float thumbY = ThumbPadding + thumbTopRel;
             float thumbW = Width - 2 * ThumbPadding;
 
             uint thumbColor = _isDragging     ? 0xFFCDCDCDU

@@ -19,34 +19,32 @@ namespace Velox.Demo.LogViewer
         private const float  LevelW      =  44f;
         private const float  ColGap      =   4f;
 
-        public override void Render(Velox.IGraphics graphics)
+        protected override void OnRender(Velox.IGraphics graphics)
         {
-            if (!IsVisible) return;
-
-            graphics.PushClip(X, Y, Width, Height);
+            graphics.PushClip(0, 0, Width, Height);
 
             int firstLineInt = (int)Math.Floor(FirstLine);
             int count        = VisibleLineCount;
-            float msgX       = X + PaddingL + TimestampW + ColGap + LevelW + ColGap;
-            float msgW       = Width - (msgX - X) - PaddingL;
+            float msgX       = PaddingL + TimestampW + ColGap + LevelW + ColGap;
+            float msgW       = Width - msgX - PaddingL;
 
             for (int i = 0; i < count; i++)
             {
                 int lineIdx = firstLineInt + i;
                 if (lineIdx >= Lines.Count) break;
 
-                float rowY = Y + i * LineHeight;
+                float rowY = i * LineHeight;
 
                 if (lineIdx == _hoveredLine)
-                    graphics.FillRect(X, rowY, Width, LineHeight, 0x14FFFFFFU);
+                    graphics.FillRect(0, rowY, Width, LineHeight, 0x14FFFFFFU);
                 else if (lineIdx % 2 == 1)
-                    graphics.FillRect(X, rowY, Width, LineHeight, 0x0D000000U);
+                    graphics.FillRect(0, rowY, Width, LineHeight, 0x0D000000U);
 
                 var entry  = Lines[lineIdx];
                 float textY = rowY + (LineHeight - FontSize) / 2f;
 
                 graphics.DrawText(entry.Timestamp, FontFace, FontSize,
-                    X + PaddingL, textY, TimestampW, LineHeight, 0xFF9D9D9DU, noWrap: true);
+                    PaddingL, textY, TimestampW, LineHeight, 0xFF9D9D9DU, noWrap: true);
 
                 uint levelColor = entry.Level switch
                 {
@@ -55,7 +53,7 @@ namespace Velox.Demo.LogViewer
                     _       => 0xFF60CDFFU,
                 };
                 graphics.DrawText(entry.Level, FontFace, FontSize,
-                    X + PaddingL + TimestampW + ColGap, textY, LevelW, LineHeight, levelColor, noWrap: true);
+                    PaddingL + TimestampW + ColGap, textY, LevelW, LineHeight, levelColor, noWrap: true);
 
                 uint msgColor = entry.Level switch
                 {

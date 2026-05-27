@@ -11,26 +11,24 @@ namespace Velox.Controls
         private bool _isHovered = false;
         private bool _isPressed = false;
 
-        public override void Render(Velox.IGraphics graphics)
+        protected override void OnRender(Velox.IGraphics graphics)
         {
-            if (!IsVisible) return;
-
             uint bgColor     = _isPressed ? 0xFF3D3D3DU : _isHovered ? 0xFF3A3A3AU : 0xFF2D2D2DU;
             uint borderColor = _isPressed ? 0xFF686868U : 0xFF696969U;
             const float r = 6f;
 
-            graphics.FillRoundedRect(X, Y, Width, Height, r, bgColor);
-            graphics.DrawRoundedRect(X, Y, Width, Height, r, borderColor, strokeWidth: 1f);
+            graphics.FillRoundedRect(0, 0, Width, Height, r, bgColor);
+            graphics.DrawRoundedRect(0, 0, Width, Height, r, borderColor, strokeWidth: 1f);
 
             if (!_isPressed)
             {
-                float lineY = Y + Height - 2f;
-                graphics.DrawLine(X + r, lineY, X + Width - r, lineY, 0xFFA0A0A0U, strokeWidth: 1.5f);
+                float lineY = Height - 2f;
+                graphics.DrawLine(r, lineY, Width - r, lineY, 0xFFA0A0A0U, strokeWidth: 1.5f);
             }
 
             var (tw, th) = graphics.MeasureText(Text, FontFace, FontSize, Width, Height);
-            float tx = X + (Width  - tw) / 2f;
-            float ty = Y + (Height - th) / 2f;
+            float tx = (Width  - tw) / 2f;
+            float ty = (Height - th) / 2f;
             graphics.DrawText(Text, FontFace, FontSize, tx, ty, Width, Height, 0xFFFFFFFFU);
         }
 

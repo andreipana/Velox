@@ -23,5 +23,8 @@ namespace Velox
 
         void PushClip(float x, float y, float w, float h);
         void PopClip();
+
+        void PushTranslation(float dx, float dy);
+        void PopTranslation();
     }
 }

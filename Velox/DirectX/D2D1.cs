@@ -89,6 +89,12 @@ namespace Velox.DirectX
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    internal struct D2D1_MATRIX_3X2_F
+    {
+        public float _11, _12, _21, _22, _31, _32;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     internal struct DWRITE_TEXT_METRICS
     {
         public float left, top, width, widthIncludingTrailingWhitespace, height;
@@ -226,6 +232,21 @@ namespace Velox.DirectX
             fixed (D2D1_ROUNDED_RECT* p = &rr)
                 ((delegate* unmanaged[Stdcall]<IntPtr, D2D1_ROUNDED_RECT*, IntPtr, void>)
                     V(rt)[19])(rt, p, brush);
+        }
+
+        // Slot 30: SetTransform
+        public static void RT_SetTransform(IntPtr rt, ref D2D1_MATRIX_3X2_F matrix)
+        {
+            fixed (D2D1_MATRIX_3X2_F* p = &matrix)
+                ((delegate* unmanaged[Stdcall]<IntPtr, D2D1_MATRIX_3X2_F*, void>)V(rt)[30])(rt, p);
+        }
+
+        // Slot 31: GetTransform
+        public static D2D1_MATRIX_3X2_F RT_GetTransform(IntPtr rt)
+        {
+            D2D1_MATRIX_3X2_F m;
+            ((delegate* unmanaged[Stdcall]<IntPtr, D2D1_MATRIX_3X2_F*, void>)V(rt)[31])(rt, &m);
+            return m;
         }
 
         // Slot 28: DrawTextLayout
