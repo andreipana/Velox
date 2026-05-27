@@ -28,7 +28,7 @@ namespace Velox.Controls
 
         private void RenderLeft(IGraphics g, List<(StatusBarItem Item, bool)> items)
         {
-            float x = ItemPadding;
+            float x = 3;
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i].Item;

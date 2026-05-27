@@ -4,8 +4,8 @@ namespace Velox.Controls
     {
         private const string Font      = "Segoe UI Variable Text";
         private const float  FontSize  = 12f;
-        private const float  SwatchW   = 14f;
-        private const float  SwatchH   = 10f;
+        private const float  SwatchW   = 60f;
+        private const float  SwatchH   = 20f;
         private const float  SwatchGap = 5f;
 
         // Optional dim label prefix, e.g. "X: "
