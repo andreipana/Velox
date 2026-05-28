@@ -32,10 +32,10 @@ namespace Velox.Controls
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i].Item;
-                float iw = item.MeasureWidth(g);
-                item.X = x; item.Y = 0; item.Width = iw;
+                item.X = x; item.Y = 0;
+                item.Width = item.MeasureWidth(g); // setter applies MinWidth/MaxWidth
                 item.Render(g);
-                x += iw;
+                x += item.Width;
                 if (i < items.Count - 1)
                 {
                     x += ItemPadding;
@@ -49,18 +49,20 @@ namespace Velox.Controls
         {
             if (items.Count == 0) return;
 
-            // Measure all widths first so we can compute the starting x.
-            float[] widths = items.Select(t => t.Item.MeasureWidth(g)).ToArray();
-            float total = widths.Sum()
+            // Apply MinWidth/MaxWidth by assigning through the setter, then read back.
+            foreach (var (item, _) in items)
+                item.Width = item.MeasureWidth(g);
+
+            float total = items.Sum(t => t.Item.Width)
                 + (items.Count - 1) * (ItemPadding + SeparatorWidth + ItemPadding);
 
             float x = Width - ItemPadding - total;
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i].Item;
-                item.X = x; item.Y = 0; item.Width = widths[i];
+                item.X = x; item.Y = 0; // Width already set above
                 item.Render(g);
-                x += widths[i];
+                x += item.Width;
                 if (i < items.Count - 1)
                 {
                     x += ItemPadding;

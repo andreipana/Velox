@@ -2,10 +2,37 @@ namespace Velox.Controls
 {
     public abstract class Control : Velox.IControl
     {
-        public float X      { get; set; }
-        public float Y      { get; set; }
-        public float Width  { get; set; }
-        public float Height { get; set; }
+        public float X { get; set; }
+        public float Y { get; set; }
+
+        public float? MinWidth  { get; set; }
+        public float? MaxWidth  { get; set; }
+        public float? MinHeight { get; set; }
+        public float? MaxHeight { get; set; }
+
+        private float _width;
+        private float _height;
+
+        public float Width
+        {
+            get => _width;
+            set
+            {
+                _width = MinWidth.HasValue ? Math.Max(value, MinWidth.Value) : value;
+                if (MaxWidth.HasValue) _width = Math.Min(_width, MaxWidth.Value);
+            }
+        }
+
+        public float Height
+        {
+            get => _height;
+            set
+            {
+                _height = MinHeight.HasValue ? Math.Max(value, MinHeight.Value) : value;
+                if (MaxHeight.HasValue) _height = Math.Min(_height, MaxHeight.Value);
+            }
+        }
+
         public bool IsEnabled { get; set; } = true;
         public bool IsVisible { get; set; } = true;
 
