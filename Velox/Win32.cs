@@ -149,6 +149,9 @@ namespace Velox
             public int    dwHoverTime;
         }
 
+        [DllImport("user32.dll")] public static extern bool   SetWindowText(IntPtr hWnd, string text);
+        [DllImport("user32.dll")] public static extern int    GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int maxCount);
+        [DllImport("user32.dll")] public static extern int    GetWindowTextLength(IntPtr hWnd);
         [DllImport("user32.dll")] public static extern bool   TrackMouseEvent(ref TRACKMOUSEEVENT tme);
         [DllImport("user32.dll")] public static extern bool   InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
         [DllImport("user32.dll")] public static extern IntPtr SetCapture(IntPtr hWnd);

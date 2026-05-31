@@ -32,7 +32,20 @@ namespace Velox
         public float DpiX => renderingSystem.DpiX;
         public float DpiY => renderingSystem.DpiY;
 
-        public void Invalidate() => Win32.InvalidateRect(hwnd, IntPtr.Zero, false);
+        public string Title
+        {
+            get
+            {
+                int len = Win32.GetWindowTextLength(hwnd);
+                if (len == 0) return string.Empty;
+                var sb = new System.Text.StringBuilder(len + 1);
+                Win32.GetWindowText(hwnd, sb, sb.Capacity);
+                return sb.ToString();
+            }
+            set => Win32.SetWindowText(hwnd, value);
+        }
+
+        public void Invalidate()   => Win32.InvalidateRect(hwnd, IntPtr.Zero, false);
         public void CaptureMouse() => Win32.SetCapture(hwnd);
         public void ReleaseMouse() => Win32.ReleaseCapture();
 
