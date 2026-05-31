@@ -149,6 +149,27 @@ namespace Velox
             public int    dwHoverTime;
         }
 
+        // ---------------- Icon ----------------
+
+        public const int WM_SETICON = 0x0080;
+        public const int ICON_SMALL = 0;
+        public const int ICON_BIG   = 1;
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        public static extern bool DestroyIcon(IntPtr hIcon);
+
+        // Extracts icons directly from an exe/dll file on disk.
+        // nIconIndex=0 picks the first icon (the one set by <ApplicationIcon>).
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+        public static extern uint ExtractIconEx(string lpszFile, int nIconIndex,
+                                                out IntPtr phiconLarge, out IntPtr phiconSmall,
+                                                uint nIcons);
+
+        // ---------------- Window text ----------------
+
         [DllImport("user32.dll")] public static extern bool   SetWindowText(IntPtr hWnd, string text);
         [DllImport("user32.dll")] public static extern int    GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int maxCount);
         [DllImport("user32.dll")] public static extern int    GetWindowTextLength(IntPtr hWnd);

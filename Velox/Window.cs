@@ -4,13 +4,16 @@ using Velox.DirectX;
 
 namespace Velox
 {
-    public class Window
+    public class Window : IDisposable
     {
         DirectXRenderingSystem renderingSystem;
 
         private Win32.WndProcDelegate _wndProc;
 
         IntPtr hwnd;
+
+        private IntPtr _hIconBig   = IntPtr.Zero;
+        private IntPtr _hIconSmall = IntPtr.Zero;
 
         private DirectXRenderer _renderer2;
 
@@ -43,6 +46,27 @@ namespace Velox
                 return sb.ToString();
             }
             set => Win32.SetWindowText(hwnd, value);
+        }
+
+        // Extracts the first icon from the running exe (the one embedded by <ApplicationIcon>)
+        // and sets it as the window icon. ExtractIconEx reads from the file on disk, which is
+        // more reliable than LoadImage with a module handle in .NET 6+ hosted processes.
+        public void LoadIconFromResource()
+        {
+            if (_hIconBig   != IntPtr.Zero) { Win32.DestroyIcon(_hIconBig);   _hIconBig   = IntPtr.Zero; }
+            if (_hIconSmall != IntPtr.Zero) { Win32.DestroyIcon(_hIconSmall); _hIconSmall = IntPtr.Zero; }
+
+            string exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule!.FileName;
+            Win32.ExtractIconEx(exePath, 0, out _hIconBig, out _hIconSmall, 1);
+
+            Win32.SendMessage(hwnd, Win32.WM_SETICON, new IntPtr(Win32.ICON_BIG),   _hIconBig);
+            Win32.SendMessage(hwnd, Win32.WM_SETICON, new IntPtr(Win32.ICON_SMALL), _hIconSmall);
+        }
+
+        public void Dispose()
+        {
+            if (_hIconBig   != IntPtr.Zero) { Win32.DestroyIcon(_hIconBig);   _hIconBig   = IntPtr.Zero; }
+            if (_hIconSmall != IntPtr.Zero) { Win32.DestroyIcon(_hIconSmall); _hIconSmall = IntPtr.Zero; }
         }
 
         public void Invalidate()   => Win32.InvalidateRect(hwnd, IntPtr.Zero, false);
