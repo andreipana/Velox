@@ -35,6 +35,20 @@ namespace Velox
         public float DpiX => renderingSystem.DpiX;
         public float DpiY => renderingSystem.DpiY;
 
+        public bool AlwaysOnTop
+        {
+            get => _alwaysOnTop;
+            set
+            {
+                _alwaysOnTop = value;
+                Win32.SetWindowPos(hwnd,
+                    value ? Win32.HWND_TOPMOST : Win32.HWND_NOTOPMOST,
+                    0, 0, 0, 0,
+                    Win32.SWP_NOMOVE | Win32.SWP_NOSIZE);
+            }
+        }
+        private bool _alwaysOnTop;
+
         public string Title
         {
             get

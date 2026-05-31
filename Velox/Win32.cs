@@ -179,8 +179,12 @@ namespace Velox
         [DllImport("user32.dll")] public static extern bool   ReleaseCapture();
         [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
 
-        public const uint SWP_NOMOVE   = 0x0002;
-        public const uint SWP_NOZORDER = 0x0004;
+        public const uint SWP_NOMOVE    = 0x0002;
+        public const uint SWP_NOSIZE    = 0x0001;
+        public const uint SWP_NOZORDER  = 0x0004;
+
+        public static readonly IntPtr HWND_TOPMOST    = new IntPtr(-1);
+        public static readonly IntPtr HWND_NOTOPMOST  = new IntPtr(-2);
 
         public static int GetWheelDelta(IntPtr wParam)
             => (short)((wParam.ToInt64() >> 16) & 0xFFFF);
