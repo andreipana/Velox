@@ -128,6 +128,17 @@ namespace Velox
         [DllImport("dwmapi.dll")]
         public static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS pMarInset);
 
+        // ---------------- Keyboard ----------------
+
+        public const int WM_KEYDOWN    = 0x0100;
+        public const int WM_SYSKEYDOWN = 0x0104; // fired when Alt is held
+
+        public const int VK_SHIFT   = 0x10;
+        public const int VK_CONTROL = 0x11;
+        public const int VK_MENU    = 0x12; // Alt
+
+        [DllImport("user32.dll")] public static extern short GetKeyState(int nVirtKey);
+
         // ---------------- Mouse ----------------
 
         public const int WM_MOUSEMOVE   = 0x0200;

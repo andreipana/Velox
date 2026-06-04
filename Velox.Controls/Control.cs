@@ -58,5 +58,6 @@ namespace Velox.Controls
         public virtual void OnRightMouseUp(float px, float py)    { }
         public virtual void OnMouseLeave()                        { }
         public virtual void OnMouseWheel(float delta)             { }
+        public virtual void OnKeyDown(VirtualKey key, bool ctrl, bool shift, bool alt) { }
     }
 }

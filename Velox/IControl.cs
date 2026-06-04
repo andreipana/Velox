@@ -13,5 +13,6 @@ namespace Velox
         void OnRightMouseUp(float px, float py);
         void OnMouseLeave();
         void OnMouseWheel(float delta);
+        void OnKeyDown(VirtualKey key, bool ctrl, bool shift, bool alt);
     }
 }

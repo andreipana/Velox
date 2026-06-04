@@ -221,6 +221,18 @@ namespace Velox
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
                 }
+
+                case Win32.WM_KEYDOWN:
+                case Win32.WM_SYSKEYDOWN:
+                {
+                    var  key   = (VirtualKey)wParam.ToInt32();
+                    bool ctrl  = (Win32.GetKeyState(Win32.VK_CONTROL) & 0x8000) != 0;
+                    bool shift = (Win32.GetKeyState(Win32.VK_SHIFT)   & 0x8000) != 0;
+                    bool alt   = (Win32.GetKeyState(Win32.VK_MENU)    & 0x8000) != 0;
+                    foreach (var c in _controls) c.OnKeyDown(key, ctrl, shift, alt);
+                    Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
+                    break;
+                }
             }
             return Win32.DefWindowProc(hWnd, msg, wParam, lParam);
         }
