@@ -47,6 +47,9 @@ namespace Velox
         }
 
         [StructLayout(LayoutKind.Sequential)]
+        public struct POINT { public int x, y; }
+
+        [StructLayout(LayoutKind.Sequential)]
         public struct RECT
         {
             public int left, top, right, bottom;
@@ -181,6 +184,7 @@ namespace Velox
 
         // ---------------- Window text ----------------
 
+        [DllImport("user32.dll")] public static extern bool   ScreenToClient(IntPtr hWnd, ref POINT pt);
         [DllImport("user32.dll")] public static extern bool   SetWindowText(IntPtr hWnd, string text);
         [DllImport("user32.dll")] public static extern int    GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int maxCount);
         [DllImport("user32.dll")] public static extern int    GetWindowTextLength(IntPtr hWnd);

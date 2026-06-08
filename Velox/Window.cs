@@ -217,7 +217,14 @@ namespace Velox
                 case Win32.WM_MOUSEWHEEL:
                 {
                     float delta = Win32.GetWheelDelta(wParam) / 120f;
-                    foreach (var c in _controls) c.OnMouseWheel(delta);
+                    // lParam carries screen coordinates for WM_MOUSEWHEEL (unlike other mouse
+                    // messages which carry client coordinates). Convert before scaling to DIPs.
+                    var (sx, sy) = Win32.GetMousePos(lParam);
+                    var pt = new Win32.POINT { x = sx, y = sy };
+                    Win32.ScreenToClient(hWnd, ref pt);
+                    float dx = pt.x * 96f / renderingSystem.DpiX;
+                    float dy = pt.y * 96f / renderingSystem.DpiY;
+                    foreach (var c in _controls) c.OnMouseWheel(delta, dx, dy);
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
                 }

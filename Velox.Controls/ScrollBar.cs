@@ -97,7 +97,7 @@ namespace Velox.Controls
             _isThumbHovered = false;
         }
 
-        public override void OnMouseWheel(float delta)
+        public override void OnMouseWheel(float delta, float px, float py)
         {
             // delta > 0 = scrolled up → decrease value; delta < 0 = down → increase value
             SetValueAndNotify(Math.Clamp(Value + (-delta * 3f), Min, Max));
