@@ -21,6 +21,7 @@ namespace Velox
         private bool _mouseTracking = false;
 
         public event EventHandler? Resized;
+        public event EventHandler? Closed;
 
         public (float Width, float Height) ClientSizeDip
         {
@@ -97,6 +98,16 @@ namespace Velox
             set => Win32.SetWindowPos(hwnd, IntPtr.Zero, 0, 0, value.Width, value.Height, Win32.SWP_NOMOVE | Win32.SWP_NOZORDER);
         }
 
+        public (int X, int Y) Position
+        {
+            get
+            {
+                Win32.GetWindowRect(hwnd, out Win32.RECT r);
+                return (r.left, r.top);
+            }
+            set => Win32.SetWindowPos(hwnd, IntPtr.Zero, value.X, value.Y, 0, 0, Win32.SWP_NOSIZE | Win32.SWP_NOZORDER);
+        }
+
         public void AddControl(IControl control)
         {
             _controls.Add(control);
@@ -152,6 +163,10 @@ namespace Velox
                     RenderInternal();
                     Win32.ValidateRect(hWnd, IntPtr.Zero); // suppress the WM_PAINT Windows queues after WM_SIZE
                     break;
+
+                case Win32.WM_CLOSE:
+                    Closed?.Invoke(this, EventArgs.Empty);
+                    break; // DefWindowProc handles WM_CLOSE by calling DestroyWindow
 
                 case Win32.WM_DESTROY:
                     Win32.PostQuitMessage(0);

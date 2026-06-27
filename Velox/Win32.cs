@@ -8,6 +8,7 @@ namespace Velox
 
         public const int WS_OVERLAPPEDWINDOW = 0x00CF0000;
         public const int WS_VISIBLE          = 0x10000000;
+        public const int WM_CLOSE            = 0x0010;
         public const int WM_DESTROY          = 0x0002;
         public const int WM_PAINT            = 0x000F;
         public const int WM_SIZE             = 0x0005;
