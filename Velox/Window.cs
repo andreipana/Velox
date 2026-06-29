@@ -88,6 +88,23 @@ namespace Velox
         public void CaptureMouse() => Win32.SetCapture(hwnd);
         public void ReleaseMouse() => Win32.ReleaseCapture();
 
+        private WindowCursor _cursor = WindowCursor.Arrow;
+
+        public void SetCursor(WindowCursor cursor)
+        {
+            _cursor = cursor;
+            Win32.SetCursor(GetCursorHandle(cursor));
+        }
+
+        private static IntPtr GetCursorHandle(WindowCursor cursor) => cursor switch
+        {
+            WindowCursor.SizeNWSE => Win32.LoadCursor(IntPtr.Zero, Win32.IDC_SIZENWSE),
+            WindowCursor.SizeNESW => Win32.LoadCursor(IntPtr.Zero, Win32.IDC_SIZENESW),
+            WindowCursor.SizeWE   => Win32.LoadCursor(IntPtr.Zero, Win32.IDC_SIZEWE),
+            WindowCursor.SizeNS   => Win32.LoadCursor(IntPtr.Zero, Win32.IDC_SIZENS),
+            _                     => Win32.LoadCursor(IntPtr.Zero, Win32.IDC_ARROW),
+        };
+
         public (int Width, int Height) Size
         {
             get
@@ -153,6 +170,10 @@ namespace Velox
         {
             switch (msg)
             {
+                case Win32.WM_SETCURSOR:
+                    Win32.SetCursor(GetCursorHandle(_cursor));
+                    return (IntPtr)1; // prevent DefWindowProc from resetting to class cursor
+
                 case Win32.WM_PAINT:
                     RenderInternal();
                     break;

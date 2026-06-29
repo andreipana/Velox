@@ -73,6 +73,14 @@ namespace Velox
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool SetProcessDPIAware();
 
+        // Cursor IDs for LoadCursor(NULL, IDC_...)
+        public static readonly IntPtr IDC_SIZENWSE = (IntPtr)32642;
+        public static readonly IntPtr IDC_SIZENESW = (IntPtr)32643;
+        public static readonly IntPtr IDC_SIZEWE   = (IntPtr)32644;
+        public static readonly IntPtr IDC_SIZENS   = (IntPtr)32645;
+
+        [DllImport("user32.dll")] public static extern IntPtr SetCursor(IntPtr hCursor);
+
         /// <summary>
         /// Sets the process DPI awareness to SystemAware using native Win32 calls,
         /// equivalent to Application.SetHighDpiMode(HighDpiMode.SystemAware).
@@ -143,8 +151,9 @@ namespace Velox
 
         [DllImport("user32.dll")] public static extern short GetKeyState(int nVirtKey);
 
-        // ---------------- Mouse ----------------
+        // ---------------- Mouse / Cursor ----------------
 
+        public const int WM_SETCURSOR   = 0x0020;
         public const int WM_MOUSEMOVE   = 0x0200;
         public const int WM_LBUTTONDOWN = 0x0201;
         public const int WM_LBUTTONUP   = 0x0202;
