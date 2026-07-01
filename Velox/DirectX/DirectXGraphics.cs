@@ -147,6 +147,32 @@ namespace Velox.DirectX
             D2D1Vtbl.RT_SetTransform(_rt, ref saved);
         }
 
+        public void PushScale(float scaleX, float scaleY, float centerX, float centerY)
+        {
+            var cur = D2D1Vtbl.RT_GetTransform(_rt);
+            _transformStack.Push(cur);
+            // Convert center from local space to screen space, then scale around
+            // that screen-space point: M = C * Scale_screen(sx, sy, cxScreen, cyScreen)
+            float cxScreen = centerX * cur._11 + centerY * cur._21 + cur._31;
+            float cyScreen = centerX * cur._12 + centerY * cur._22 + cur._32;
+            var scaled = new D2D1_MATRIX_3X2_F
+            {
+                _11 = cur._11 * scaleX,
+                _12 = cur._12 * scaleY,
+                _21 = cur._21 * scaleX,
+                _22 = cur._22 * scaleY,
+                _31 = cur._31 * scaleX + cxScreen * (1 - scaleX),
+                _32 = cur._32 * scaleY + cyScreen * (1 - scaleY),
+            };
+            D2D1Vtbl.RT_SetTransform(_rt, ref scaled);
+        }
+
+        public void PopScale()
+        {
+            var saved = _transformStack.Pop();
+            D2D1Vtbl.RT_SetTransform(_rt, ref saved);
+        }
+
         private static D2D1_RECT_F ToRect(float x, float y, float w, float h)
             => new D2D1_RECT_F { left = x, top = y, right = x + w, bottom = y + h };
 

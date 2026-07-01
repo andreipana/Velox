@@ -26,5 +26,8 @@ namespace Velox
 
         void PushTranslation(float dx, float dy);
         void PopTranslation();
+
+        void PushScale(float scaleX, float scaleY, float centerX, float centerY);
+        void PopScale();
     }
 }
