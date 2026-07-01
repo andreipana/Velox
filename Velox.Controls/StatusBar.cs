@@ -28,15 +28,16 @@ namespace Velox.Controls
 
         private void RenderLeft(IGraphics g, List<(StatusBarItem Item, bool)> items)
         {
+            var visible = items.Where(t => t.Item.GetIsVisible?.Invoke() ?? true).ToList();
             float x = 3;
-            for (int i = 0; i < items.Count; i++)
+            for (int i = 0; i < visible.Count; i++)
             {
-                var item = items[i].Item;
+                var item = visible[i].Item;
                 item.X = x; item.Y = 0;
                 item.Width = item.MeasureWidth(g); // setter applies MinWidth/MaxWidth
                 item.Render(g);
                 x += item.Width;
-                if (i < items.Count - 1)
+                if (i < visible.Count - 1)
                 {
                     x += ItemPadding;
                     DrawSep(g, x);
@@ -47,6 +48,7 @@ namespace Velox.Controls
 
         private void RenderRight(IGraphics g, List<(StatusBarItem Item, bool)> items)
         {
+            items = items.Where(t => t.Item.GetIsVisible?.Invoke() ?? true).ToList();
             if (items.Count == 0) return;
 
             // Apply MinWidth/MaxWidth by assigning through the setter, then read back.
