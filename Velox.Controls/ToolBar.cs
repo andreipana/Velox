@@ -26,6 +26,8 @@ namespace Velox.Controls
                     continue;
                 }
 
+                if (!item.IsVisible) continue;
+
                 item.X = x; item.Y = btnY;
                 item.Width = ButtonSize; item.Height = ButtonSize;
                 item.Render(g);
@@ -33,28 +35,31 @@ namespace Velox.Controls
             }
         }
 
+        private IEnumerable<ToolBarButton> VisibleButtons
+            => _items.OfType<ToolBarButton>().Where(b => b.IsVisible);
+
         // Forward mouse events with toolbar-local coordinates so child HitTest works.
         public override void OnMouseMove(float px, float py)
         {
             float lx = px - X, ly = py - Y;
-            foreach (var item in _items.OfType<ToolBarButton>()) item.OnMouseMove(lx, ly);
+            foreach (var item in VisibleButtons) item.OnMouseMove(lx, ly);
         }
 
         public override void OnMouseDown(float px, float py)
         {
             float lx = px - X, ly = py - Y;
-            foreach (var item in _items.OfType<ToolBarButton>()) item.OnMouseDown(lx, ly);
+            foreach (var item in VisibleButtons) item.OnMouseDown(lx, ly);
         }
 
         public override void OnMouseUp(float px, float py)
         {
             float lx = px - X, ly = py - Y;
-            foreach (var item in _items.OfType<ToolBarButton>()) item.OnMouseUp(lx, ly);
+            foreach (var item in VisibleButtons) item.OnMouseUp(lx, ly);
         }
 
         public override void OnMouseLeave()
         {
-            foreach (var item in _items.OfType<ToolBarButton>()) item.OnMouseLeave();
+            foreach (var item in VisibleButtons) item.OnMouseLeave();
         }
     }
 }
