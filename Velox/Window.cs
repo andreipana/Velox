@@ -171,8 +171,12 @@ namespace Velox
             switch (msg)
             {
                 case Win32.WM_SETCURSOR:
-                    Win32.SetCursor(GetCursorHandle(_cursor));
-                    return (IntPtr)1; // prevent DefWindowProc from resetting to class cursor
+                    if ((lParam.ToInt32() & 0xFFFF) == Win32.HTCLIENT)
+                    {
+                        Win32.SetCursor(GetCursorHandle(_cursor));
+                        return (IntPtr)1;
+                    }
+                    break; // let DefWindowProc set resize/caption cursors on non-client areas
 
                 case Win32.WM_PAINT:
                     RenderInternal();

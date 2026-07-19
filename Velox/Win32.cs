@@ -154,6 +154,7 @@ namespace Velox
         // ---------------- Mouse / Cursor ----------------
 
         public const int WM_SETCURSOR   = 0x0020;
+        public const int HTCLIENT       = 1;
         public const int WM_MOUSEMOVE   = 0x0200;
         public const int WM_LBUTTONDOWN = 0x0201;
         public const int WM_LBUTTONUP   = 0x0202;
