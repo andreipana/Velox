@@ -2,14 +2,29 @@ namespace Velox.Controls
 {
     public class ToolBarButton : Control
     {
-        private const string DefaultFont = "Segoe Fluent Icons";
-        private const float  DefaultSize = 16f;
+        private IControl? _content;
 
-        public string Glyph      { get; set; } = "";
-        public string GlyphFont  { get; set; } = DefaultFont;
-        public float  GlyphSize  { get; set; } = DefaultSize;
-        public bool   IsToggle   { get; set; } = false;
-        public bool   IsChecked  { get; set; } = false;
+        public IControl? Content
+        {
+            get => _content;
+            set => _content = value;
+        }
+
+        // Convenience: sets Content to a glyph TextBlock using the specified font/size.
+        // GlyphFont and GlyphSize must be set before Glyph in object initializers.
+        public string? Glyph
+        {
+            get => (_content as TextBlock)?.Text;
+            set => _content = value != null
+                ? new TextBlock { Text = value, FontFace = GlyphFont, FontSize = GlyphSize }
+                : null;
+        }
+
+        public string GlyphFont { get; set; } = "Segoe Fluent Icons";
+        public float  GlyphSize { get; set; } = 16f;
+
+        public bool IsToggle  { get; set; } = false;
+        public bool IsChecked { get; set; } = false;
 
         public event EventHandler? Click;
 
@@ -18,12 +33,10 @@ namespace Velox.Controls
 
         protected override void OnRender(IGraphics g)
         {
-            // Background
             uint bg = (_isPressed || (IsToggle && IsChecked))
                 ? 0xFF3A3A3AU
-                : _isHovered
-                    ? 0x18FFFFFFU
-                    : 0x00000000U;
+                : _isHovered ? 0x18FFFFFFU
+                : 0x00000000U;
 
             if (bg != 0)
                 g.FillRoundedRect(0, 0, Width, Height, 4f, bg);
@@ -31,26 +44,20 @@ namespace Velox.Controls
             if (IsToggle && IsChecked && !_isPressed)
                 g.DrawRoundedRect(0, 0, Width, Height, 4f, 0xFF606060U, 1f);
 
-            // Glyph centered
-            if (!string.IsNullOrEmpty(Glyph))
+            if (_content != null)
             {
-                var (tw, th) = g.MeasureText(Glyph, GlyphFont, GlyphSize, Width, Height);
-                float tx = (Width  - tw) / 2f;
-                float ty = (Height - th) / 2f;
-                uint color = IsEnabled ? 0xFFCCCCCCU : 0xFF666666U;
-                g.DrawText(Glyph, GlyphFont, GlyphSize, tx, ty, tw + 1f, th + 1f, color);
+                if (_content is TextBlock tb)
+                    tb.TextColor = IsEnabled ? 0xFFCCCCCCU : 0xFF666666U;
+
+                var (dw, dh) = _content.Measure(g, Width, Height);
+                _content.Arrange((Width - dw) / 2f, (Height - dh) / 2f, dw, dh);
+                _content.Render(g);
             }
         }
 
-        public override void OnMouseMove(float px, float py)
-        {
-            _isHovered = HitTest(px, py);
-        }
-
-        public override void OnMouseDown(float px, float py)
-        {
-            if (HitTest(px, py)) _isPressed = true;
-        }
+        public override void OnMouseMove(float px, float py)  => _isHovered = HitTest(px, py);
+        public override void OnMouseLeave()                   { _isHovered = false; _isPressed = false; }
+        public override void OnMouseDown(float px, float py)  { if (HitTest(px, py)) _isPressed = true; }
 
         public override void OnMouseUp(float px, float py)
         {
@@ -61,12 +68,6 @@ namespace Velox.Controls
                 if (IsToggle) IsChecked = !IsChecked;
                 Click?.Invoke(this, EventArgs.Empty);
             }
-        }
-
-        public override void OnMouseLeave()
-        {
-            _isHovered = false;
-            _isPressed = false;
         }
     }
 }

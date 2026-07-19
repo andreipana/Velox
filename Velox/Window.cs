@@ -17,6 +17,10 @@ namespace Velox
 
         private DirectXRenderer _renderer2;
 
+        // Root control that fills the entire client area automatically.
+        // Prefer this over AddControl for layout-driven UIs.
+        public IControl? Content { get; set; }
+
         private readonly List<IControl> _controls = new();
         private bool _mouseTracking = false;
 
@@ -203,6 +207,7 @@ namespace Velox
                     var (mx, my) = Win32.GetMousePos(lParam);
                     float dx = mx * 96f / renderingSystem.DpiX;
                     float dy = my * 96f / renderingSystem.DpiY;
+                    Content?.OnMouseMove(dx, dy);
                     foreach (var c in _controls) c.OnMouseMove(dx, dy);
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
@@ -213,6 +218,7 @@ namespace Velox
                     var (mx, my) = Win32.GetMousePos(lParam);
                     float dx = mx * 96f / renderingSystem.DpiX;
                     float dy = my * 96f / renderingSystem.DpiY;
+                    Content?.OnMouseDown(dx, dy);
                     foreach (var c in _controls) c.OnMouseDown(dx, dy);
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
@@ -223,6 +229,7 @@ namespace Velox
                     var (mx, my) = Win32.GetMousePos(lParam);
                     float dx = mx * 96f / renderingSystem.DpiX;
                     float dy = my * 96f / renderingSystem.DpiY;
+                    Content?.OnMouseUp(dx, dy);
                     foreach (var c in _controls) c.OnMouseUp(dx, dy);
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
@@ -233,6 +240,7 @@ namespace Velox
                     var (mx, my) = Win32.GetMousePos(lParam);
                     float dx = mx * 96f / renderingSystem.DpiX;
                     float dy = my * 96f / renderingSystem.DpiY;
+                    Content?.OnRightMouseDown(dx, dy);
                     foreach (var c in _controls) c.OnRightMouseDown(dx, dy);
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
@@ -243,6 +251,7 @@ namespace Velox
                     var (mx, my) = Win32.GetMousePos(lParam);
                     float dx = mx * 96f / renderingSystem.DpiX;
                     float dy = my * 96f / renderingSystem.DpiY;
+                    Content?.OnRightMouseUp(dx, dy);
                     foreach (var c in _controls) c.OnRightMouseUp(dx, dy);
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
@@ -250,6 +259,7 @@ namespace Velox
 
                 case Win32.WM_MOUSELEAVE:
                     _mouseTracking = false;
+                    Content?.OnMouseLeave();
                     foreach (var c in _controls) c.OnMouseLeave();
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
@@ -264,6 +274,7 @@ namespace Velox
                     Win32.ScreenToClient(hWnd, ref pt);
                     float dx = pt.x * 96f / renderingSystem.DpiX;
                     float dy = pt.y * 96f / renderingSystem.DpiY;
+                    Content?.OnMouseWheel(delta, dx, dy);
                     foreach (var c in _controls) c.OnMouseWheel(delta, dx, dy);
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
@@ -276,6 +287,7 @@ namespace Velox
                     bool ctrl  = (Win32.GetKeyState(Win32.VK_CONTROL) & 0x8000) != 0;
                     bool shift = (Win32.GetKeyState(Win32.VK_SHIFT)   & 0x8000) != 0;
                     bool alt   = (Win32.GetKeyState(Win32.VK_MENU)    & 0x8000) != 0;
+                    Content?.OnKeyDown(key, ctrl, shift, alt);
                     foreach (var c in _controls) c.OnKeyDown(key, ctrl, shift, alt);
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
@@ -308,6 +320,11 @@ namespace Velox
 
         public virtual void Render(IGraphics graphics)
         {
+            if (Content != null && Content.IsVisible)
+            {
+                Content.Arrange(0, 0, graphics.Width, graphics.Height);
+                Content.Render(graphics);
+            }
             foreach (var control in _controls)
                 if (control.IsVisible) control.Render(graphics);
         }

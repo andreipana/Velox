@@ -11,6 +11,14 @@ namespace Velox.Controls
         public float ActualWidth  { get; private set; }
         public float ActualHeight { get; private set; }
 
+        public override (float desiredW, float desiredH) Measure(Velox.IGraphics graphics, float availableW, float availableH)
+        {
+            if (string.IsNullOrEmpty(Text)) return (0, 0);
+            float maxW = Width  > 0 ? Width  : availableW;
+            float maxH = Height > 0 ? Height : availableH;
+            return graphics.MeasureText(Text, FontFace, FontSize, maxW, maxH);
+        }
+
         protected override void OnRender(Velox.IGraphics graphics)
         {
             float maxW = Width  > 0 ? Width  : float.PositiveInfinity;

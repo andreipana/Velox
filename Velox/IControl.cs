@@ -4,6 +4,13 @@ namespace Velox
     {
         bool IsVisible { get; }
 
+        // Returns the control's desired size given the available space.
+        // Called by panels during layout; graphics is needed for text measurement.
+        (float desiredW, float desiredH) Measure(IGraphics graphics, float availableW, float availableH);
+
+        // Sets the control's position and size. Called by panels after Measure.
+        void Arrange(float x, float y, float w, float h);
+
         void Render(IGraphics graphics);
         bool HitTest(float px, float py);
         void OnMouseMove(float px, float py);

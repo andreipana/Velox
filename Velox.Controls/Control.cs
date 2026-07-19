@@ -36,6 +36,14 @@ namespace Velox.Controls
         public bool IsEnabled { get; set; } = true;
         public bool IsVisible { get; set; } = true;
 
+        public virtual (float desiredW, float desiredH) Measure(Velox.IGraphics graphics, float availableW, float availableH)
+            => (Width, Height);
+
+        public virtual void Arrange(float x, float y, float w, float h)
+        {
+            X = x; Y = y; Width = w; Height = h;
+        }
+
         public void Render(Velox.IGraphics graphics)
         {
             if (!IsVisible) return;
