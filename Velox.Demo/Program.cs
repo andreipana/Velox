@@ -63,12 +63,23 @@ namespace Velox.Demo
 
             scrollBar.ValueChanged += (_, v) => scrollLabel.Text = $"Scroll: {(int)v}";
 
+            var glyph = new Glyph()
+            {
+                Symbol = "\uE8C8", // Copy
+                FontFace = "Segoe MDL2 Assets",
+                FontSize = 32f,
+                Color = 0xFF0000FF,
+                X = 360,
+                Y = 40
+            };
+
             window.AddControl(title);
             window.AddControl(helloButton);
             window.AddControl(resetButton);
             window.AddControl(status);
             window.AddControl(scrollLabel);
             window.AddControl(scrollBar);
+            window.AddControl(glyph);
 
             application.Run();
         }
