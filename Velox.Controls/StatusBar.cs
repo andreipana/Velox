@@ -28,7 +28,7 @@ namespace Velox.Controls
 
         private void RenderLeft(IGraphics g, List<(StatusBarItem Item, bool)> items)
         {
-            var visible = items.Where(t => t.Item.GetIsVisible?.Invoke() ?? true).ToList();
+            var visible = items.Where(t => t.Item.IsVisible).ToList();
             float x = 3;
             for (int i = 0; i < visible.Count; i++)
             {
@@ -48,7 +48,7 @@ namespace Velox.Controls
 
         private void RenderRight(IGraphics g, List<(StatusBarItem Item, bool)> items)
         {
-            items = items.Where(t => t.Item.GetIsVisible?.Invoke() ?? true).ToList();
+            items = items.Where(t => t.Item.IsVisible).ToList();
             if (items.Count == 0) return;
 
             // Apply MinWidth/MaxWidth by assigning through the setter, then read back.
