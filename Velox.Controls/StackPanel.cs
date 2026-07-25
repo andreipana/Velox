@@ -59,9 +59,6 @@ namespace Velox.Controls
                 }
                 first = false;
             }
-            // Respect explicit size if set.
-            if (Width  > 0) totalW = Width;
-            if (Height > 0) totalH = Height;
             return (totalW, totalH);
         }
     }
