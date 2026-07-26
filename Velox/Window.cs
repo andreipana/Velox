@@ -75,7 +75,7 @@ namespace Velox
             if (_hIconBig   != IntPtr.Zero) { Win32.DestroyIcon(_hIconBig);   _hIconBig   = IntPtr.Zero; }
             if (_hIconSmall != IntPtr.Zero) { Win32.DestroyIcon(_hIconSmall); _hIconSmall = IntPtr.Zero; }
 
-            string exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule!.FileName;
+            string exePath = Environment.ProcessPath!;
             Win32.ExtractIconEx(exePath, 0, out _hIconBig, out _hIconSmall, 1);
 
             Win32.SendMessage(hwnd, Win32.WM_SETICON, new IntPtr(Win32.ICON_BIG),   _hIconBig);
