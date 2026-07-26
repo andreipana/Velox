@@ -25,7 +25,7 @@ namespace Velox.Controls
                 // PushScale(-1,-1) is a 180° rotation (det=+1, orientation-preserving).
                 // D2D's GDI text renderer requires this — PushScale(1,-1) has det=-1 and
                 // produces invisible glyphs.
-                g.PushScale(-1f, -1f, tw / 2f, th / 2f);
+                g.PushScale(1f, -1f, tw / 2f, th / 2f);
                 g.DrawText(Symbol, FontFace, FontSize, 0, 0, maxW, maxH, Color);
                 g.PopScale();
             }
