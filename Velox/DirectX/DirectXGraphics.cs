@@ -122,6 +122,9 @@ namespace Velox.DirectX
                 fixed (byte* p = pixels)
                     bitmap = D2D1Vtbl.RT_CreateBitmap(_rt, size, (IntPtr)p, (uint)stride, ref props);
             }
+            if (bitmap == IntPtr.Zero)
+                throw new InvalidOperationException("Direct2D failed to create a bitmap (ID2D1RenderTarget::CreateBitmap returned a null handle).");
+
             return new NativeBitmap(bitmap, width, height);
         }
 
@@ -129,6 +132,8 @@ namespace Velox.DirectX
         {
             if (bitmap is not NativeBitmap nb)
                 throw new ArgumentException("bitmap was not created by this IGraphics implementation", nameof(bitmap));
+            if (nb.Handle == IntPtr.Zero)
+                throw new ObjectDisposedException(nameof(INativeBitmap));
 
             var dstRect = new D2D1_RECT_F { left = dstX, top = dstY, right = dstX + dstW, bottom = dstY + dstH };
             D2D1Vtbl.RT_DrawBitmap(_rt, nb.Handle, ref dstRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE.LINEAR);
