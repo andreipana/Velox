@@ -107,20 +107,31 @@ namespace Velox.DirectX
             finally { D2D1Vtbl.Release(fmt); }
         }
 
-        public void DrawBitmap(IntPtr scan0, int srcWidth, int srcHeight, int stride,
-                               float dstX, float dstY, float dstW, float dstH)
+        public INativeBitmap CreateBitmap(ReadOnlySpan<byte> pixels, int width, int height, int stride)
         {
-            var size  = new D2D1_SIZE_U { width = (uint)srcWidth, height = (uint)srcHeight };
+            var size  = new D2D1_SIZE_U { width = (uint)width, height = (uint)height };
             var props = new D2D1_BITMAP_PROPERTIES
             {
-                pixelFormat = new D2D1_PIXEL_FORMAT { format = DXGI_FORMAT.B8G8R8A8_UNORM, alphaMode = D2D1_ALPHA_MODE.IGNORE },
+                pixelFormat = new D2D1_PIXEL_FORMAT { format = DXGI_FORMAT.B8G8R8A8_UNORM, alphaMode = D2D1_ALPHA_MODE.PREMULTIPLIED },
                 dpiX = _sys.DpiX,
                 dpiY = _sys.DpiY,
             };
+            IntPtr bitmap;
+            unsafe
+            {
+                fixed (byte* p = pixels)
+                    bitmap = D2D1Vtbl.RT_CreateBitmap(_rt, size, (IntPtr)p, (uint)stride, ref props);
+            }
+            return new NativeBitmap(bitmap, width, height);
+        }
+
+        public void DrawBitmap(INativeBitmap bitmap, float dstX, float dstY, float dstW, float dstH)
+        {
+            if (bitmap is not NativeBitmap nb)
+                throw new ArgumentException("bitmap was not created by this IGraphics implementation", nameof(bitmap));
+
             var dstRect = new D2D1_RECT_F { left = dstX, top = dstY, right = dstX + dstW, bottom = dstY + dstH };
-            IntPtr bitmap = D2D1Vtbl.RT_CreateBitmap(_rt, size, scan0, (uint)stride, ref props);
-            try   { D2D1Vtbl.RT_DrawBitmap(_rt, bitmap, ref dstRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE.NEAREST_NEIGHBOR); }
-            finally { D2D1Vtbl.Release(bitmap); }
+            D2D1Vtbl.RT_DrawBitmap(_rt, nb.Handle, ref dstRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE.LINEAR);
         }
 
         public void PushClip(float x, float y, float w, float h)

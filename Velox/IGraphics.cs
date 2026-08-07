@@ -18,8 +18,8 @@ namespace Velox
         (float width, float height) MeasureText(string text, string fontFace, float fontSize,
                                                 float maxWidth, float maxHeight);
 
-        void DrawBitmap(IntPtr scan0, int srcWidth, int srcHeight, int stride,
-                        float dstX, float dstY, float dstW, float dstH);
+        INativeBitmap CreateBitmap(ReadOnlySpan<byte> pixels, int width, int height, int stride);
+        void DrawBitmap(INativeBitmap bitmap, float dstX, float dstY, float dstW, float dstH);
 
         void PushClip(float x, float y, float w, float h);
         void PopClip();

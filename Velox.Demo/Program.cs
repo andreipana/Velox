@@ -81,6 +81,22 @@ namespace Velox.Demo
             window.AddControl(scrollBar);
             window.AddControl(glyph);
 
+            // --- Image demo ---
+
+            string imagesDir = Path.Combine(AppContext.BaseDirectory, "images");
+
+            var pngImage1 = new Image { X = 480, Y = 40, Source = new Bitmap(Path.Combine(imagesDir, "1.png")) };
+            var pngImage2 = new Image { X = 690, Y = 40, Source = new Bitmap(Path.Combine(imagesDir, "2.png")) };
+            var jpgImage  = new Image
+            {
+                X = 40, Y = 280, Width = 380, Height = 286,
+                Source = new Bitmap(Path.Combine(imagesDir, "3.jpg")),
+            };
+
+            window.AddControl(pngImage1);
+            window.AddControl(pngImage2);
+            window.AddControl(jpgImage);
+
             application.Run();
         }
     }
