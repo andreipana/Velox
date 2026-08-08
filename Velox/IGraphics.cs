@@ -21,6 +21,12 @@ namespace Velox
         INativeBitmap CreateBitmap(ReadOnlySpan<byte> pixels, int width, int height, int stride);
         void DrawBitmap(INativeBitmap bitmap, float dstX, float dstY, float dstW, float dstH);
 
+        // One-shot upload+draw, for pixel data that's different every call (e.g.
+        // a live screen/video capture) where caching an INativeBitmap across
+        // frames wouldn't help. scan0 is only read during this call.
+        void DrawBitmap(IntPtr scan0, int srcWidth, int srcHeight, int stride,
+                        float dstX, float dstY, float dstW, float dstH);
+
         void PushClip(float x, float y, float w, float h);
         void PopClip();
 

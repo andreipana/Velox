@@ -109,6 +109,15 @@ namespace Velox.DirectX
 
         public INativeBitmap CreateBitmap(ReadOnlySpan<byte> pixels, int width, int height, int stride)
         {
+            unsafe
+            {
+                fixed (byte* p = pixels)
+                    return CreateBitmapCore((IntPtr)p, width, height, stride);
+            }
+        }
+
+        private INativeBitmap CreateBitmapCore(IntPtr scan0, int width, int height, int stride)
+        {
             var size  = new D2D1_SIZE_U { width = (uint)width, height = (uint)height };
             var props = new D2D1_BITMAP_PROPERTIES
             {
@@ -116,12 +125,7 @@ namespace Velox.DirectX
                 dpiX = _sys.DpiX,
                 dpiY = _sys.DpiY,
             };
-            IntPtr bitmap;
-            unsafe
-            {
-                fixed (byte* p = pixels)
-                    bitmap = D2D1Vtbl.RT_CreateBitmap(_rt, size, (IntPtr)p, (uint)stride, ref props);
-            }
+            IntPtr bitmap = D2D1Vtbl.RT_CreateBitmap(_rt, size, scan0, (uint)stride, ref props);
             if (bitmap == IntPtr.Zero)
                 throw new InvalidOperationException("Direct2D failed to create a bitmap (ID2D1RenderTarget::CreateBitmap returned a null handle).");
 
@@ -135,8 +139,21 @@ namespace Velox.DirectX
             if (nb.Handle == IntPtr.Zero)
                 throw new ObjectDisposedException(nameof(INativeBitmap));
 
+            DrawBitmapHandle(nb.Handle, dstX, dstY, dstW, dstH);
+        }
+
+        public void DrawBitmap(IntPtr scan0, int srcWidth, int srcHeight, int stride,
+                               float dstX, float dstY, float dstW, float dstH)
+        {
+            var native = (NativeBitmap)CreateBitmapCore(scan0, srcWidth, srcHeight, stride);
+            try   { DrawBitmapHandle(native.Handle, dstX, dstY, dstW, dstH); }
+            finally { native.Dispose(); }
+        }
+
+        private void DrawBitmapHandle(IntPtr handle, float dstX, float dstY, float dstW, float dstH)
+        {
             var dstRect = new D2D1_RECT_F { left = dstX, top = dstY, right = dstX + dstW, bottom = dstY + dstH };
-            D2D1Vtbl.RT_DrawBitmap(_rt, nb.Handle, ref dstRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE.LINEAR);
+            D2D1Vtbl.RT_DrawBitmap(_rt, handle, ref dstRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE.LINEAR);
         }
 
         public void PushClip(float x, float y, float w, float h)
