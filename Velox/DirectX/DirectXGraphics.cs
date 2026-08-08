@@ -132,28 +132,29 @@ namespace Velox.DirectX
             return new NativeBitmap(bitmap, width, height);
         }
 
-        public void DrawBitmap(INativeBitmap bitmap, float dstX, float dstY, float dstW, float dstH)
+        public void DrawBitmap(INativeBitmap bitmap, float dstX, float dstY, float dstW, float dstH, bool interpolated = true)
         {
             if (bitmap is not NativeBitmap nb)
                 throw new ArgumentException("bitmap was not created by this IGraphics implementation", nameof(bitmap));
             if (nb.Handle == IntPtr.Zero)
                 throw new ObjectDisposedException(nameof(INativeBitmap));
 
-            DrawBitmapHandle(nb.Handle, dstX, dstY, dstW, dstH);
+            DrawBitmapHandle(nb.Handle, dstX, dstY, dstW, dstH, interpolated);
         }
 
         public void DrawBitmap(IntPtr scan0, int srcWidth, int srcHeight, int stride,
-                               float dstX, float dstY, float dstW, float dstH)
+                               float dstX, float dstY, float dstW, float dstH, bool interpolated = true)
         {
             var native = (NativeBitmap)CreateBitmapCore(scan0, srcWidth, srcHeight, stride);
-            try   { DrawBitmapHandle(native.Handle, dstX, dstY, dstW, dstH); }
+            try   { DrawBitmapHandle(native.Handle, dstX, dstY, dstW, dstH, interpolated); }
             finally { native.Dispose(); }
         }
 
-        private void DrawBitmapHandle(IntPtr handle, float dstX, float dstY, float dstW, float dstH)
+        private void DrawBitmapHandle(IntPtr handle, float dstX, float dstY, float dstW, float dstH, bool interpolated)
         {
             var dstRect = new D2D1_RECT_F { left = dstX, top = dstY, right = dstX + dstW, bottom = dstY + dstH };
-            D2D1Vtbl.RT_DrawBitmap(_rt, handle, ref dstRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE.LINEAR);
+            var mode = interpolated ? D2D1_BITMAP_INTERPOLATION_MODE.LINEAR : D2D1_BITMAP_INTERPOLATION_MODE.NEAREST_NEIGHBOR;
+            D2D1Vtbl.RT_DrawBitmap(_rt, handle, ref dstRect, 1.0f, mode);
         }
 
         public void PushClip(float x, float y, float w, float h)
