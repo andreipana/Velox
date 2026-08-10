@@ -20,6 +20,13 @@ namespace Velox.DirectX
         public static readonly Guid CLSID_WICImagingFactory       = new("cacaf262-9370-4615-a13b-9f5539da4c0a");
         public static readonly Guid IID_IWICImagingFactory        = new("ec5ec8a9-c395-4314-9c77-54d7a935ff70");
         public static readonly Guid GUID_WICPixelFormat32bppPBGRA = new("6fddc324-4e03-4bfe-b185-3d77768dc910");
+
+        // Used by ManagedIStream's QueryInterface (a minimal IStream server
+        // implementation, not a WIC type as such, but kept alongside the
+        // other COM GUIDs this codebase needs).
+        public static readonly Guid IID_IUnknown          = new("00000000-0000-0000-C000-000000000046");
+        public static readonly Guid IID_ISequentialStream = new("0c733a30-2a1c-11ce-ade5-00aa0044773d");
+        public static readonly Guid IID_IStream            = new("0000000c-0000-0000-C000-000000000046");
     }
 
     // ─── Native P/Invokes ─────────────────────────────────────────────────────
@@ -62,6 +69,16 @@ namespace Velox.DirectX
                 hr = ((delegate* unmanaged[Stdcall]<IntPtr, char*, Guid*, uint, WICDecodeOptions, IntPtr*, int>)
                         V(factory)[3])(factory, pFilename, null, desiredAccess, options, &decoder);
             ThrowIfFailed(hr, nameof(Factory_CreateDecoderFromFilename));
+            return decoder;
+        }
+
+        // Slot 4: CreateDecoderFromStream
+        public static IntPtr Factory_CreateDecoderFromStream(IntPtr factory, IntPtr stream, WICDecodeOptions options)
+        {
+            IntPtr decoder;
+            int hr = ((delegate* unmanaged[Stdcall]<IntPtr, IntPtr, Guid*, WICDecodeOptions, IntPtr*, int>)
+                        V(factory)[4])(factory, stream, null, options, &decoder);
+            ThrowIfFailed(hr, nameof(Factory_CreateDecoderFromStream));
             return decoder;
         }
 

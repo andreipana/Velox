@@ -12,9 +12,35 @@ namespace Velox
         public byte[] Pixels   { get; }
 
         public Bitmap(string filePath)
+            : this(WicVtbl.Factory_CreateDecoderFromFilename(
+                Wic.Factory, filePath, WicNative.GENERIC_READ, WICDecodeOptions.MetadataCacheOnDemand))
         {
-            IntPtr decoder = WicVtbl.Factory_CreateDecoderFromFilename(
-                Wic.Factory, filePath, WicNative.GENERIC_READ, WICDecodeOptions.MetadataCacheOnDemand);
+        }
+
+        // Decodes from an arbitrary stream (e.g. Assembly.GetManifestResourceStream
+        // for a PNG/JPEG embedded as a resource) via a hand-rolled IStream COM
+        // wrapper (ManagedIStream) instead of WIC's filename-based decoder.
+        public Bitmap(Stream stream) : this(CreateDecoderFromStream(stream))
+        {
+        }
+
+        private static IntPtr CreateDecoderFromStream(Stream stream)
+        {
+            using var ms = new MemoryStream();
+            stream.CopyTo(ms);
+
+            IntPtr comStream = ManagedIStream.Create(ms.ToArray());
+            try
+            {
+                // The decoder AddRefs its own reference to the stream, so
+                // releasing ours immediately after this call is correct.
+                return WicVtbl.Factory_CreateDecoderFromStream(Wic.Factory, comStream, WICDecodeOptions.MetadataCacheOnDemand);
+            }
+            finally { WicVtbl.Release(comStream); }
+        }
+
+        private Bitmap(IntPtr decoder)
+        {
             try
             {
                 IntPtr frame = WicVtbl.Decoder_GetFrame(decoder, 0);
