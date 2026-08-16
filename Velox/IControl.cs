@@ -19,8 +19,9 @@ namespace Velox
         // Finds the innermost control whose bounds contain (px, py), in the same
         // coordinate space as HitTest. Containers recurse into their children (so
         // the most specific control wins) before falling back to themselves.
-        // Used to resolve which control's ToolTip to show under the cursor.
-        IControl? HitTestTooltip(float px, float py);
+        // Currently used to resolve which control's ToolTip to show under the
+        // cursor, but the traversal itself is generic (not tooltip-specific).
+        IControl? HitTestDeep(float px, float py);
         void OnMouseMove(float px, float py);
         void OnMouseDown(float px, float py);
         void OnMouseUp(float px, float py);

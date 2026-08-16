@@ -61,7 +61,7 @@ namespace Velox.Controls
                && px >= X && px < X + Width
                && py >= Y && py < Y + Height;
 
-        public virtual Velox.IControl? HitTestTooltip(float px, float py)
+        public virtual Velox.IControl? HitTestDeep(float px, float py)
             => HitTest(px, py) ? this : null;
 
         public virtual void OnMouseMove(float px, float py)       { }

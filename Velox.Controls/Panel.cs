@@ -80,14 +80,14 @@ namespace Velox.Controls
 
         // Reverse order so a later-added (visually topmost, e.g. an OverlayPanel
         // badge) child wins over one it overlaps.
-        public override IControl? HitTestTooltip(float px, float py)
+        public override IControl? HitTestDeep(float px, float py)
         {
             float lx = px - X, ly = py - Y;
             for (int i = _children.Count - 1; i >= 0; i--)
             {
                 var child = _children[i];
                 if (!child.IsVisible) continue;
-                var hit = child.HitTestTooltip(lx, ly);
+                var hit = child.HitTestDeep(lx, ly);
                 if (hit != null) return hit;
             }
             return HitTest(px, py) ? this : null;

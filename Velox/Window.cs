@@ -326,11 +326,11 @@ namespace Velox
             _lastMouseDipX = dx;
             _lastMouseDipY = dy;
 
-            IControl? hit = Content?.HitTestTooltip(dx, dy);
+            IControl? hit = Content?.HitTestDeep(dx, dy);
             if (hit == null)
                 foreach (var c in _controls)
                 {
-                    hit = c.HitTestTooltip(dx, dy);
+                    hit = c.HitTestDeep(dx, dy);
                     if (hit != null) break;
                 }
 
