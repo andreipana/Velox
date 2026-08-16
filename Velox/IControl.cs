@@ -4,6 +4,8 @@ namespace Velox
     {
         bool IsVisible { get; }
 
+        IControl? ToolTip { get; set; }
+
         // Returns the control's desired size given the available space.
         // Called by panels during layout; graphics is needed for text measurement.
         (float desiredW, float desiredH) Measure(IGraphics graphics, float availableW, float availableH);
@@ -13,6 +15,12 @@ namespace Velox
 
         void Render(IGraphics graphics);
         bool HitTest(float px, float py);
+
+        // Finds the innermost control whose bounds contain (px, py), in the same
+        // coordinate space as HitTest. Containers recurse into their children (so
+        // the most specific control wins) before falling back to themselves.
+        // Used to resolve which control's ToolTip to show under the cursor.
+        IControl? HitTestTooltip(float px, float py);
         void OnMouseMove(float px, float py);
         void OnMouseDown(float px, float py);
         void OnMouseUp(float px, float py);

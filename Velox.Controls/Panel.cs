@@ -77,5 +77,20 @@ namespace Velox.Controls
             foreach (var child in _children)
                 if (child.IsVisible) child.OnKeyDown(key, ctrl, shift, alt);
         }
+
+        // Reverse order so a later-added (visually topmost, e.g. an OverlayPanel
+        // badge) child wins over one it overlaps.
+        public override IControl? HitTestTooltip(float px, float py)
+        {
+            float lx = px - X, ly = py - Y;
+            for (int i = _children.Count - 1; i >= 0; i--)
+            {
+                var child = _children[i];
+                if (!child.IsVisible) continue;
+                var hit = child.HitTestTooltip(lx, ly);
+                if (hit != null) return hit;
+            }
+            return HitTest(px, py) ? this : null;
+        }
     }
 }

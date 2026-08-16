@@ -8,10 +8,18 @@ namespace Velox
 
         public const int WS_OVERLAPPEDWINDOW = 0x00CF0000;
         public const int WS_VISIBLE          = 0x10000000;
+        public const int WS_POPUP            = unchecked((int)0x80000000);
         public const int WM_CLOSE            = 0x0010;
         public const int WM_DESTROY          = 0x0002;
         public const int WM_PAINT            = 0x000F;
         public const int WM_SIZE             = 0x0005;
+        public const int WM_APP              = 0x8000;
+
+        public const int WS_EX_TOPMOST    = 0x00000008;
+        public const int WS_EX_TOOLWINDOW = 0x00000080;
+        public const int WS_EX_NOACTIVATE = 0x08000000;
+
+        public const int CS_DROPSHADOW = 0x00020000;
 
         public static readonly IntPtr IDC_ARROW = (IntPtr)32512;
 
@@ -119,8 +127,13 @@ namespace Velox
         [DllImport("kernel32.dll")] public static extern IntPtr GetModuleHandle(string? name);
         [DllImport("user32.dll")]   public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         [DllImport("user32.dll")]   public static extern bool ValidateRect(IntPtr hWnd, IntPtr lpRect);
+        [DllImport("user32.dll")]   public static extern bool DestroyWindow(IntPtr hWnd);
+        [DllImport("user32.dll")]   public static extern bool PostMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+        [DllImport("user32.dll")]   public static extern bool ClientToScreen(IntPtr hWnd, ref POINT pt);
 
-        public const int SW_SHOW = 5;
+        public const int SW_SHOW           = 5;
+        public const int SW_HIDE           = 0;
+        public const int SW_SHOWNOACTIVATE = 4;
 
         // ---------------- DWM (Windows 11 backdrop) ----------------
 
@@ -205,12 +218,30 @@ namespace Velox
         [DllImport("user32.dll")] public static extern bool   ReleaseCapture();
         [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
 
-        public const uint SWP_NOMOVE    = 0x0002;
-        public const uint SWP_NOSIZE    = 0x0001;
-        public const uint SWP_NOZORDER  = 0x0004;
+        public const uint SWP_NOMOVE     = 0x0002;
+        public const uint SWP_NOSIZE     = 0x0001;
+        public const uint SWP_NOZORDER   = 0x0004;
+        public const uint SWP_NOACTIVATE = 0x0010;
+        public const uint SWP_SHOWWINDOW = 0x0040;
 
         public static readonly IntPtr HWND_TOPMOST    = new IntPtr(-1);
         public static readonly IntPtr HWND_NOTOPMOST  = new IntPtr(-2);
+
+        // ---------------- Monitor ----------------
+
+        public const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MONITORINFO
+        {
+            public int  cbSize;
+            public RECT rcMonitor;
+            public RECT rcWork;
+            public uint dwFlags;
+        }
+
+        [DllImport("user32.dll")] public static extern IntPtr MonitorFromPoint(POINT pt, uint dwFlags);
+        [DllImport("user32.dll")] public static extern bool   GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
         public static int GetWheelDelta(IntPtr wParam)
             => (short)((wParam.ToInt64() >> 16) & 0xFFFF);

@@ -36,6 +36,8 @@ namespace Velox.Controls
         public bool IsEnabled { get; set; } = true;
         public bool IsVisible { get; set; } = true;
 
+        public Velox.IControl? ToolTip { get; set; }
+
         public virtual (float desiredW, float desiredH) Measure(Velox.IGraphics graphics, float availableW, float availableH)
             => (Width, Height);
 
@@ -58,6 +60,9 @@ namespace Velox.Controls
             => IsVisible && IsEnabled
                && px >= X && px < X + Width
                && py >= Y && py < Y + Height;
+
+        public virtual Velox.IControl? HitTestTooltip(float px, float py)
+            => HitTest(px, py) ? this : null;
 
         public virtual void OnMouseMove(float px, float py)       { }
         public virtual void OnMouseDown(float px, float py)       { }

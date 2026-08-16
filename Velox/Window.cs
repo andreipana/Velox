@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Velox.DirectX;
 
 namespace Velox
@@ -23,6 +24,16 @@ namespace Velox
 
         private readonly List<IControl> _controls = new();
         private bool _mouseTracking = false;
+
+        // ---------------- Tooltips ----------------
+
+        private const int TooltipShowDelayMs = 500;
+        private const int WM_SHOWTOOLTIP     = Win32.WM_APP + 1;
+
+        private TooltipWindow? _tooltipWindow;
+        private System.Threading.Timer? _tooltipTimer;
+        private IControl? _hoveredTooltipOwner;
+        private float _lastMouseDipX, _lastMouseDipY;
 
         public event EventHandler? Resized;
         public event EventHandler? Closed;
@@ -86,6 +97,8 @@ namespace Velox
         {
             if (_hIconBig   != IntPtr.Zero) { Win32.DestroyIcon(_hIconBig);   _hIconBig   = IntPtr.Zero; }
             if (_hIconSmall != IntPtr.Zero) { Win32.DestroyIcon(_hIconSmall); _hIconSmall = IntPtr.Zero; }
+            _tooltipTimer?.Dispose();
+            _tooltipWindow?.Dispose();
         }
 
         public void Invalidate()   => Win32.InvalidateRect(hwnd, IntPtr.Zero, false);
@@ -209,12 +222,14 @@ namespace Velox
                     float dy = my * 96f / renderingSystem.DpiY;
                     Content?.OnMouseMove(dx, dy);
                     foreach (var c in _controls) c.OnMouseMove(dx, dy);
+                    UpdateTooltipHover(dx, dy);
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
                     break;
                 }
 
                 case Win32.WM_LBUTTONDOWN:
                 {
+                    HideTooltip();
                     var (mx, my) = Win32.GetMousePos(lParam);
                     float dx = mx * 96f / renderingSystem.DpiX;
                     float dy = my * 96f / renderingSystem.DpiY;
@@ -237,6 +252,7 @@ namespace Velox
 
                 case Win32.WM_RBUTTONDOWN:
                 {
+                    HideTooltip();
                     var (mx, my) = Win32.GetMousePos(lParam);
                     float dx = mx * 96f / renderingSystem.DpiX;
                     float dy = my * 96f / renderingSystem.DpiY;
@@ -261,7 +277,12 @@ namespace Velox
                     _mouseTracking = false;
                     Content?.OnMouseLeave();
                     foreach (var c in _controls) c.OnMouseLeave();
+                    HideTooltip();
                     Win32.InvalidateRect(hWnd, IntPtr.Zero, false);
+                    break;
+
+                case WM_SHOWTOOLTIP:
+                    ShowTooltipNow();
                     break;
 
                 case Win32.WM_MOUSEWHEEL:
@@ -294,6 +315,62 @@ namespace Velox
                 }
             }
             return Win32.DefWindowProc(hWnd, msg, wParam, lParam);
+        }
+
+        // Resolves the tooltip owner under the cursor and (re)starts/cancels the
+        // show-delay timer when it changes. The timer callback runs on a threadpool
+        // thread, so it only PostMessages back to this window — all Win32/D2D calls
+        // for the actual show happen on the UI thread in ShowTooltipNow.
+        private void UpdateTooltipHover(float dx, float dy)
+        {
+            _lastMouseDipX = dx;
+            _lastMouseDipY = dy;
+
+            IControl? hit = Content?.HitTestTooltip(dx, dy);
+            if (hit == null)
+                foreach (var c in _controls)
+                {
+                    hit = c.HitTestTooltip(dx, dy);
+                    if (hit != null) break;
+                }
+
+            IControl? owner = hit?.ToolTip != null ? hit : null;
+            if (ReferenceEquals(owner, _hoveredTooltipOwner)) return;
+
+            _hoveredTooltipOwner = owner;
+            _tooltipWindow?.Hide();
+            _tooltipTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+
+            if (owner != null)
+            {
+                _tooltipTimer ??= new System.Threading.Timer(
+                    _ => Win32.PostMessage(hwnd, WM_SHOWTOOLTIP, IntPtr.Zero, IntPtr.Zero));
+                _tooltipTimer.Change(TooltipShowDelayMs, Timeout.Infinite);
+            }
+        }
+
+        private void ShowTooltipNow()
+        {
+            if (_hoveredTooltipOwner?.ToolTip is not { } content) return;
+
+            _tooltipWindow ??= new TooltipWindow(renderingSystem);
+
+            var pt = new Win32.POINT
+            {
+                x = (int)(_lastMouseDipX * renderingSystem.DpiX / 96f),
+                y = (int)(_lastMouseDipY * renderingSystem.DpiY / 96f),
+            };
+            Win32.ClientToScreen(hwnd, ref pt);
+
+            const int cursorOffsetPx = 16;
+            _tooltipWindow.Show(content, pt.x + cursorOffsetPx, pt.y + cursorOffsetPx, renderingSystem.DpiX / 96f);
+        }
+
+        private void HideTooltip()
+        {
+            _tooltipTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+            _tooltipWindow?.Hide();
+            _hoveredTooltipOwner = null;
         }
 
         private void EnsureMouseTracking(IntPtr hWnd)

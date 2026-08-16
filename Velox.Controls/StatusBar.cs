@@ -76,5 +76,17 @@ namespace Velox.Controls
 
         private void DrawSep(IGraphics g, float x)
             => g.DrawLine(x, 3f, x, Height - 3f, 0xFF3C3C3CU, 1f);
+
+        public override IControl? HitTestTooltip(float px, float py)
+        {
+            float lx = px - X, ly = py - Y;
+            foreach (var (item, _) in _items)
+            {
+                if (!item.IsVisible) continue;
+                var hit = item.HitTestTooltip(lx, ly);
+                if (hit != null) return hit;
+            }
+            return HitTest(px, py) ? this : null;
+        }
     }
 }
