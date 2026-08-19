@@ -33,6 +33,11 @@ namespace Velox
             // so it needs no custom message handling beyond the default.
             _wndProc = Win32.DefWindowProc;
 
+            // WS_EX_TRANSPARENT keeps this window out of hit-testing entirely — without
+            // it, a fast mouse movement whose path crosses the tooltip's own bounds on
+            // the way out can get routed here instead of the owner window, which then
+            // never sees the WM_MOUSEMOVE/WM_MOUSELEAVE it needs to hide the tooltip.
+
             var wc = new Win32.WNDCLASSEX
             {
                 cbSize        = Marshal.SizeOf<Win32.WNDCLASSEX>(),
@@ -48,7 +53,7 @@ namespace Velox
             // initial dimensions aren't needed now that Show() always resizes the
             // render target from the window's real, post-SetWindowPos client rect.
             _hwnd = Win32.CreateWindowEx(
-                Win32.WS_EX_TOPMOST | Win32.WS_EX_NOACTIVATE | Win32.WS_EX_TOOLWINDOW,
+                Win32.WS_EX_TOPMOST | Win32.WS_EX_NOACTIVATE | Win32.WS_EX_TOOLWINDOW | Win32.WS_EX_TRANSPARENT,
                 wc.lpszClassName, "",
                 Win32.WS_POPUP,
                 0, 0, 200, 100,

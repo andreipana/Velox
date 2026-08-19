@@ -320,7 +320,7 @@ namespace Velox
         // Resolves the tooltip owner under the cursor and (re)starts/cancels the
         // show-delay timer when it changes. The timer callback runs on a threadpool
         // thread, so it only PostMessages back to this window — all Win32/D2D calls
-        // for the actual show happen on the UI thread in ShowTooltipNow.
+        // happen on the UI thread in ShowTooltipNow.
         private void UpdateTooltipHover(float dx, float dy)
         {
             _lastMouseDipX = dx;

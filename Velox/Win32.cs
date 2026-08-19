@@ -15,9 +15,10 @@ namespace Velox
         public const int WM_SIZE             = 0x0005;
         public const int WM_APP              = 0x8000;
 
-        public const int WS_EX_TOPMOST    = 0x00000008;
-        public const int WS_EX_TOOLWINDOW = 0x00000080;
-        public const int WS_EX_NOACTIVATE = 0x08000000;
+        public const int WS_EX_TOPMOST     = 0x00000008;
+        public const int WS_EX_TRANSPARENT = 0x00000020;
+        public const int WS_EX_TOOLWINDOW  = 0x00000080;
+        public const int WS_EX_NOACTIVATE  = 0x08000000;
 
         public const int CS_DROPSHADOW = 0x00020000;
 
@@ -173,7 +174,7 @@ namespace Velox
         public const int WM_LBUTTONUP   = 0x0202;
         public const int WM_RBUTTONDOWN = 0x0204;
         public const int WM_RBUTTONUP   = 0x0205;
-        public const int WM_MOUSELEAVE  = 0x02A1;
+        public const int WM_MOUSELEAVE  = 0x02A3;
         public const int WM_MOUSEWHEEL  = 0x020A;
 
         public const int TME_LEAVE = 0x00000002;
