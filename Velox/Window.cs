@@ -65,6 +65,20 @@ namespace Velox
         }
         private bool _alwaysOnTop;
 
+        // Whole-window alpha blend (0 = invisible, 1 = normal), composited by DWM.
+        // For a temporary effect (e.g. fading while something is dragged over this
+        // window) — set it back to 1 when done.
+        public float Opacity
+        {
+            get => _opacity / 255f;
+            set
+            {
+                _opacity = (byte)Math.Clamp(value * 255f, 0f, 255f);
+                Win32.SetLayeredWindowAttributes(hwnd, 0, _opacity, Win32.LWA_ALPHA);
+            }
+        }
+        private byte _opacity = 255;
+
         // Hides this window from screen-capture/share APIs (GDI, DXGI Desktop
         // Duplication, Windows.Graphics.Capture) while it stays visible on the
         // physical display — same mechanism Teams/Zoom use for their own overlays.
@@ -170,7 +184,7 @@ namespace Velox
             Win32.RegisterClassEx(ref wc);
 
             hwnd = Win32.CreateWindowEx(
-                0,
+                Win32.WS_EX_LAYERED, // enables Opacity via SetLayeredWindowAttributes
                 wc.lpszClassName,
                 "Velox",
                 Win32.WS_OVERLAPPEDWINDOW,
@@ -178,6 +192,8 @@ namespace Velox
                 IntPtr.Zero, IntPtr.Zero,
                 wc.hInstance, IntPtr.Zero
             );
+            // A layered window renders nothing until this is called at least once.
+            Win32.SetLayeredWindowAttributes(hwnd, 0, 255, Win32.LWA_ALPHA);
 
             EnableBackdrop(hwnd, Win32.DWMSBT_MAINWINDOW); // Mica
             SetTheme(hwnd, WindowTheme.Dark);
