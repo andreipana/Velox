@@ -65,6 +65,13 @@ namespace Velox
         }
         private bool _alwaysOnTop;
 
+        // Hides this window from screen-capture/share APIs (GDI, DXGI Desktop
+        // Duplication, Windows.Graphics.Capture) while it stays visible on the
+        // physical display — same mechanism Teams/Zoom use for their own overlays.
+        // Requires Windows 10 build 19041+; no-op (returns false) on older builds.
+        public bool ExcludeFromCapture(bool exclude = true) =>
+            Win32.SetWindowDisplayAffinity(hwnd, exclude ? Win32.WDA_EXCLUDEFROMCAPTURE : Win32.WDA_NONE);
+
         public string Title
         {
             get

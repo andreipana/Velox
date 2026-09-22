@@ -218,6 +218,14 @@ namespace Velox
         [DllImport("user32.dll")] public static extern IntPtr SetCapture(IntPtr hWnd);
         [DllImport("user32.dll")] public static extern bool   ReleaseCapture();
         [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
+        [DllImport("user32.dll")] public static extern bool SetWindowDisplayAffinity(IntPtr hWnd, uint dwAffinity);
+
+        // Windows 10 2004+ (build 19041). Excludes the window from all screen-capture
+        // APIs (GDI BitBlt/PrintWindow, DXGI Desktop Duplication, Windows.Graphics.Capture)
+        // while it stays normally visible on the physical display — same mechanism
+        // Teams/Zoom use to hide their own overlay windows from a shared screen.
+        public const uint WDA_NONE               = 0x00000000;
+        public const uint WDA_EXCLUDEFROMCAPTURE = 0x00000011;
 
         public const uint SWP_NOMOVE     = 0x0002;
         public const uint SWP_NOSIZE     = 0x0001;
