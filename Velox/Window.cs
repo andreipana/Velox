@@ -73,7 +73,14 @@ namespace Velox
             get => _opacity / 255f;
             set
             {
-                _opacity = (byte)Math.Clamp(value * 255f, 0f, 255f);
+                var newOpacity = (byte)Math.Clamp(value * 255f, 0f, 255f);
+                
+                // avoid redundant calls under continuous updates (e.g. every mouse move)
+                if (newOpacity == _opacity)
+                    return;
+                
+                _opacity = newOpacity;
+
                 Win32.SetLayeredWindowAttributes(hwnd, 0, _opacity, Win32.LWA_ALPHA);
             }
         }
