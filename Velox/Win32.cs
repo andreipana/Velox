@@ -21,6 +21,10 @@ namespace Velox
         public const int WS_EX_NOACTIVATE  = 0x08000000;
         public const int WS_EX_LAYERED     = 0x00080000;
 
+        // Pass as x/y/nWidth/nHeight to CreateWindowEx to get Windows' normal
+        // cascading position/size for a new overlapped window.
+        public const int CW_USEDEFAULT = unchecked((int)0x80000000);
+
         public const uint LWA_ALPHA = 0x00000002;
 
         [DllImport("user32.dll")] public static extern bool SetLayeredWindowAttributes(IntPtr hWnd, uint crKey, byte bAlpha, uint dwFlags);

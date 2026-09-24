@@ -176,7 +176,8 @@ namespace Velox
             Win32.InvalidateRect(hwnd, IntPtr.Zero, false);
         }
 
-        public Window()
+        public Window(int x = Win32.CW_USEDEFAULT, int y = Win32.CW_USEDEFAULT,
+                      int width = Win32.CW_USEDEFAULT, int height = Win32.CW_USEDEFAULT)
         {
             _wndProc = WndProc; // must be kept alive — GC will collect a temporary delegate
 
@@ -195,7 +196,7 @@ namespace Velox
                 wc.lpszClassName,
                 "Velox",
                 Win32.WS_OVERLAPPEDWINDOW,
-                100, 100, (int)(800 / 1.5f), (int)(600 / 1.5f),
+                x, y, width, height,
                 IntPtr.Zero, IntPtr.Zero,
                 wc.hInstance, IntPtr.Zero
             );

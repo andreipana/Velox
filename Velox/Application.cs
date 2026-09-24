@@ -12,9 +12,10 @@ namespace Velox
             Win32.SetHighDpiMode();
         }
 
-        public Window CreateWindow()
+        public Window CreateWindow(int x = Win32.CW_USEDEFAULT, int y = Win32.CW_USEDEFAULT,
+                                    int width = Win32.CW_USEDEFAULT, int height = Win32.CW_USEDEFAULT)
         {
-            return new Window();
+            return new Window(x, y, width, height);
         }
 
         public void Run()
