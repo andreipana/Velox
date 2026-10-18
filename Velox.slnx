@@ -3,4 +3,5 @@
   <Project Path="Velox.Demo.LogViewer/Velox.Demo.LogViewer.csproj" />
   <Project Path="Velox/Velox.csproj" />
   <Project Path="Velox.Controls/Velox.Controls.csproj" />
+  <Project Path="Velox.Tests/Velox.Tests.csproj" />
 </Solution>
