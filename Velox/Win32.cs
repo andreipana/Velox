@@ -153,6 +153,8 @@ namespace Velox
         // DWMWA_SYSTEMBACKDROP_TYPE (Windows 11 22H2+, build 22621+)
         public const int DWMWA_SYSTEMBACKDROP_TYPE = 38;
 
+        public const int DWMSBT_AUTO            = 0; // let the system choose
+        public const int DWMSBT_NONE            = 1;
         public const int DWMSBT_MAINWINDOW      = 2; // Mica
         public const int DWMSBT_TRANSIENTWINDOW = 3; // Acrylic
         public const int DWMSBT_TABBEDWINDOW    = 4; // Mica Alt

@@ -212,7 +212,7 @@ namespace Velox
             // A layered window renders nothing until this is called at least once.
             Win32.SetLayeredWindowAttributes(hwnd, 0, 255, Win32.LWA_ALPHA);
 
-            EnableBackdrop(hwnd, Win32.DWMSBT_MAINWINDOW); // Mica
+            EnableBackdrop(hwnd, ToDwmBackdrop(_backdrop));
             SetTheme(hwnd, WindowTheme.Dark);
 
             renderingSystem = new DirectXRenderingSystem();
@@ -445,6 +445,29 @@ namespace Velox
             foreach (var control in _controls)
                 if (control.IsVisible) control.Render(graphics);
         }
+
+        // Material drawn behind the window's transparent areas. Can be changed at any time.
+        public WindowBackdrop Backdrop
+        {
+            get => _backdrop;
+            set
+            {
+                if (value == _backdrop) return;
+                _backdrop = value;
+                EnableBackdrop(hwnd, ToDwmBackdrop(value));
+                Win32.InvalidateRect(hwnd, IntPtr.Zero, false);
+            }
+        }
+        private WindowBackdrop _backdrop = WindowBackdrop.Mica;
+
+        private static int ToDwmBackdrop(WindowBackdrop backdrop) => backdrop switch
+        {
+            WindowBackdrop.None    => Win32.DWMSBT_NONE,
+            WindowBackdrop.Mica    => Win32.DWMSBT_MAINWINDOW,
+            WindowBackdrop.Acrylic => Win32.DWMSBT_TRANSIENTWINDOW,
+            WindowBackdrop.MicaAlt => Win32.DWMSBT_TABBEDWINDOW,
+            _ => throw new ArgumentOutOfRangeException(nameof(backdrop), backdrop, null),
+        };
 
         private static void EnableBackdrop(IntPtr hwnd, int backdropType)
         {

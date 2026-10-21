@@ -24,10 +24,17 @@ namespace Velox.Demo
             grid.Add(new DemoCell("Glyph and OverlayPanel", CreateGlyphDemo()));
             grid.Add(new DemoCell("TextBlock", CreateTextBlockDemo()));
 
-            var title = new TextBlock { Text = "Velox Controls Demo", FontSize = 20f };
+            var header = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 12 };
+            header.Add(new TextBlock { Text = "Window Backdrop:", FontSize = 20f });
+            foreach (var backdrop in Enum.GetValues<WindowBackdrop>())
+            {
+                var button = new Button { Width = 90, Height = 30, Text = backdrop.ToString() };
+                button.Click += (_, _) => window.Backdrop = backdrop;
+                header.Add(button);
+            }
 
             var root = new DockPanel();
-            root.Add(new Padded(title, 16, 14, 16, 6), Dock.Top);
+            root.Add(new Padded(header, 16, 14, 16, 6), Dock.Top);
             root.Add(new Padded(grid, 16, 0, 16, 16), Dock.Fill);
             window.Content = root;
 
