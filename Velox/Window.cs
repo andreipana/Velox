@@ -20,7 +20,16 @@ namespace Velox
 
         // Root control that fills the entire client area automatically.
         // Prefer this over AddControl for layout-driven UIs.
-        public IControl? Content { get; set; }
+        public IControl? Content
+        {
+            get => _content;
+            set
+            {
+                _content = value;
+                Win32.InvalidateRect(hwnd, IntPtr.Zero, false); // the window is already shown, so repaint
+            }
+        }
+        private IControl? _content;
 
         private readonly List<IControl> _controls = new();
         private bool _mouseTracking = false;
