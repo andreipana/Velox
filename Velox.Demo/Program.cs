@@ -26,12 +26,26 @@ namespace Velox.Demo
 
             var header = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 12 };
             header.Add(new TextBlock { Text = "Window Backdrop:", FontSize = 20f });
+            // The current backdrop's button is marked by wrapping its text in > <.
+            var backdropButtons = new List<(WindowBackdrop backdrop, Button button)>();
+            void UpdateBackdropButtons()
+            {
+                foreach (var (backdrop, button) in backdropButtons)
+                    button.Text = backdrop == window.Backdrop ? $">{backdrop}<" : backdrop.ToString();
+            }
+
             foreach (var backdrop in Enum.GetValues<WindowBackdrop>())
             {
                 var button = new Button { Width = 90, Height = 30, Text = backdrop.ToString() };
-                button.Click += (_, _) => window.Backdrop = backdrop;
+                button.Click += (_, _) =>
+                {
+                    window.Backdrop = backdrop;
+                    UpdateBackdropButtons();
+                };
+                backdropButtons.Add((backdrop, button));
                 header.Add(button);
             }
+            UpdateBackdropButtons();
 
             var root = new DockPanel();
             root.Add(new Padded(header, 16, 14, 16, 6), Dock.Top);
